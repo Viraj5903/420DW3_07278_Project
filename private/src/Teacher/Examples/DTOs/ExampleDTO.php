@@ -108,10 +108,12 @@ class ExampleDTO extends AbstractDTO {
             DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["created_at"])
         );
         $object->setLastModificationDate(
-            DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["last_modified_at"])
+            (empty($dbAssocArray["last_modified_at"])) ? null
+                : DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["last_modified_at"])
         );
         $object->setDeletionDate(
-            DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["deleted_at"])
+            (empty($dbAssocArray["deleted_at"])) ? null
+                : DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["deleted_at"])
         );
         
         // return the created instance
@@ -358,8 +360,8 @@ class ExampleDTO extends AbstractDTO {
             "dayOfTheWeek" => $this->getDayOfTheWeek()->value,
             "description" => $this->description,
             "creationDate" => $this->getCreationDate()->format(HTML_DATETIME_FORMAT),
-            "lastModificationDate" => $this->getLastModificationDate()->format(HTML_DATETIME_FORMAT),
-            "deletionDate" => $this->getDeletionDate()->format(HTML_DATETIME_FORMAT),
+            "lastModificationDate" => $this->getLastModificationDate()?->format(HTML_DATETIME_FORMAT),
+            "deletionDate" => $this->getDeletionDate()?->format(HTML_DATETIME_FORMAT),
         ];
         return json_encode($array, JSON_PRETTY_PRINT);
     }

@@ -21,7 +21,7 @@ use Teacher\GivenCode\Exceptions\RuntimeException;
 class DBConnectionService implements IService {
     
     private const DB_NAME = "420dw3_07278_project";
-    private static ?PDO $CONNECTION;
+    private static ?PDO $CONNECTION = null;
     
     /**
      * TODO: Function documentation
@@ -35,7 +35,12 @@ class DBConnectionService implements IService {
      */
     public static function getConnection() : PDO {
         try {
-            self::$CONNECTION ??= new PDO("mysql:dbname=" . self::DB_NAME . ";host=" . $_SERVER["HTTP_HOST"], "root", "");
+            if (!(self::$CONNECTION instanceof PDO)) {
+                
+                self::$CONNECTION = new PDO("mysql:dbname=" . self::DB_NAME . ";host=" . $_SERVER["HTTP_HOST"], "root",
+                                            "");
+                self::$CONNECTION->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            }
             return self::$CONNECTION;
         } catch (\PDOException $exception) {
             throw new RuntimeException("Failure to connect to the database: " . $exception->getMessage());

@@ -98,10 +98,11 @@ class ExampleDAO implements IDAO {
         $statement->bindValue(":id", $id, PDO::PARAM_INT);
         $statement->execute();
         
-        $array = $statement->fetch(PDO::FETCH_ASSOC) || throw new RuntimeException("No record found for id# [$id].");
-        // Shutting up the PHP interpreter that thinks the fetch() method can return a bool. The OR (||) case above
-        // takes care of when fetch() fails and returns false.
-        /** @noinspection PhpParamsInspection */
+        $array = $statement->fetch(PDO::FETCH_ASSOC);
+        if (is_bool($array) && !$array) {
+            // failed fetch
+            throw new RuntimeException("No record found for id# [$id].");
+        }
         return ExampleDTO::fromDbArray($array);
     }
     
