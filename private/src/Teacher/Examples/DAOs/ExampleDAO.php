@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Teacher\Examples\DAOs;
 
+use DateTime;
 use PDO;
 use Teacher\Examples\DTOs\ExampleDTO;
 use Teacher\GivenCode\Abstracts\IDAO;
@@ -154,7 +155,7 @@ class ExampleDAO implements IDAO {
         }
         $dto->validateForDbUpdate();
         $connection = DBConnectionService::getConnection();
-        $statement = $connection->prepare(self::CREATE_QUERY);
+        $statement = $connection->prepare(self::UPDATE_QUERY);
         $statement->bindValue(":dayOfWeek", $dto->getDayOfTheWeek()->value, PDO::PARAM_STR);
         $statement->bindValue(":desc", $dto->getDescription(), PDO::PARAM_STR);
         $statement->bindValue(":id", $dto->getPrimaryKeyValue(), PDO::PARAM_INT);
@@ -203,7 +204,7 @@ class ExampleDAO implements IDAO {
             $statement = $connection->prepare(self::REAL_DELETE_QUERY);
         } else {
             $statement = $connection->prepare(self::PSEUDO_DELETE_QUERY);
-            $statement->bindValue(":dateDeleted", (new \DateTime())->format(DB_DATETIME_FORMAT), PDO::PARAM_STR);
+            $statement->bindValue(":dateDeleted", (new DateTime())->format(DB_DATETIME_FORMAT), PDO::PARAM_STR);
         }
         $statement->bindValue(":id", $id, PDO::PARAM_INT);
         $statement->execute();

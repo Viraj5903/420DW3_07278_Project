@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Teacher\GivenCode\Domain;
 
 use ArrayIterator;
+use Debug;
 use IteratorAggregate;
 use Teacher\GivenCode\Exceptions\ValidationException;
 use Traversable;
@@ -110,11 +111,11 @@ class RouteCollection implements IteratorAggregate {
             $route_path = strtolower(rtrim($route->getRoutePath(), "/"));
             $sanitized_uri_path = strtolower(rtrim($uri_path, "/"));
             if (($route instanceof AbstractRoute) && ($sanitized_uri_path == $route_path)) {
-                \Debug::log("Route found: matched [$uri_path] with route [" . $route->getRoutePath() . "]");
+                Debug::log("Route found: matched [$uri_path] with route [" . $route->getRoutePath() . "]");
                 return $route;
             }
         }
-        \Debug::log("No route matching [$uri_path] found.");
+        Debug::log("No route matching [$uri_path] found.");
         return null;
     }
     

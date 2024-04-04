@@ -1,0 +1,67 @@
+
+.header {
+    background-color: blue;
+    min-height: 30px;
+}
+
+.main {
+    background-color: lime;
+    min-height: 30px;
+}
+
+.footer {
+    background-color: red;
+    min-height: 30px;
+}
+
+.fullwidth {
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+.error-display {
+    background-color: lightpink;
+    border: 1px solid darkred;
+    border-radius: 5px;
+}
+
+.error-text {
+    color: darkred;
+}
+
+*:disabled {
+    cursor: not-allowed;
+}
+
+.button-row {
+    padding-top: 10px;
+}
+
+@media (max-width: 575px) {
+    /* very small screens (boostrap xs)*/
+
+}
+@media (min-width: 576px) {
+    /* small screens (boostrap sm)*/
+    label {
+        text-align: end;
+    }
+}
+@media (min-width: 768px) {
+    /* medium screens (boostrap md)*/
+}
+@media (min-width: 992px) {
+    /* large screens (boostrap lg)*/
+
+}
+@media (min-width: 1200px) {
+    /* very large screens (boostrap xl)*/
+
+}
+@media (min-width: 1400px) {
+    /* very very large screens (boostrap xxl)*/
+
+}

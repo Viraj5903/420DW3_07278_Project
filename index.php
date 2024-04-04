@@ -13,7 +13,7 @@ require_once "private/helpers/init.php";
 
 use Teacher\Examples\ApplicationExample;
 
-Debug::$DEBUG_MODE = true;
+Debug::$DEBUG_MODE = false;
 
 $application = new ApplicationExample();
 $application->run();

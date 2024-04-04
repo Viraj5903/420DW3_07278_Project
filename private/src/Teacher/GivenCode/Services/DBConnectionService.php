@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Teacher\GivenCode\Services;
 
 use PDO;
+use PDOException;
 use Teacher\GivenCode\Abstracts\IService;
 use Teacher\GivenCode\Exceptions\RuntimeException;
 
@@ -42,7 +43,7 @@ class DBConnectionService implements IService {
                 self::$CONNECTION->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             }
             return self::$CONNECTION;
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             throw new RuntimeException("Failure to connect to the database: " . $exception->getMessage());
         }
     }

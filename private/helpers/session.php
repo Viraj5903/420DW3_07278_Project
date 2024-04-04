@@ -19,7 +19,7 @@ if (empty($_COOKIE["testCookie"])) {
         // try to create the test cookie and trigger the reload/redirection.
         // Try to create a domain-wide test cookie; any value is okay as long as it is not empty
         $host = (empty($_SERVER["HTTP_HOST"]) ? "localhost" : $_SERVER["HTTP_HOST"]);
-        setcookie("testCookie", "true", time() + 3600, "/", $host);
+        setcookie("testCookie", "true", time() + (60 * 60 * 24), "/", $host);
         // Set the response headers to trigger the reload, note the added URL parameter
         // Note the 307 redirection HTTP status that triggers explicitly an equivalent request
         $request_path = $_SERVER["REQUEST_URI"] ?? "";

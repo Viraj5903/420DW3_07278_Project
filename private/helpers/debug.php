@@ -9,6 +9,7 @@ declare(strict_types=1);
  * (c) Copyright 2024 Marc-Eric Boury 
  */
 
+
 require_once "constants.php";
 
 class Debug {
@@ -158,6 +159,46 @@ class Debug {
             die();
         }
     }
+    
+    public static function exceptionToArray(Throwable $thrown) : array {
+        $array = [
+            "exceptionClass" => $thrown::class,
+            "message" => $thrown->getMessage(),
+            "code" => $thrown->getCode()
+        ];
+        if ($thrown->getPrevious() instanceof Throwable) {
+            $array["previous"] = self::exceptionToArray($thrown->getPrevious());
+        }
+        return $array;
+    }
+    
+    public static function outputException(Throwable $thrown) : void {
+        $headers = apache_request_headers();
+        if (!empty($headers["Accept"]) && str_contains($headers["Accept"], "application/json")) {
+            header("Content-Type: application/json;chrset=UTF-8");
+            $array = [
+                "error" => true,
+                "exception" => self::exceptionToArray($thrown),
+                "stacktrace" => $thrown->getTraceAsString()
+            ];
+            echo json_encode($array, JSON_PRETTY_PRINT);
+        } else {
+            echo generate_exception_html($thrown);
+        }
+        $status_code = 500;
+        /**
+         * Disabling qualified name to import warning because debug file might be loaded before autoloader.
+         * @noinspection PhpFullyQualifiedNameUsageInspection
+         */
+        if ($thrown instanceof \Teacher\GivenCode\Exceptions\RequestException) {
+            $status_code = ($thrown->getHttpResponseCode() == 0) ? 500 : $thrown->getHttpResponseCode();
+            foreach ($thrown->getHttpHeaders() as $header_name => $header_value) {
+                header("$header_name: $header_value");
+            }
+        }
+        http_response_code($status_code);
+    }
+    
 }
 
 function debug(mixed $input, bool $doEcho = true, bool $doDie = false) : ?string {
@@ -238,15 +279,20 @@ function debug(mixed $input, bool $doEcho = true, bool $doDie = false) : ?string
  * @author Marc-Eric Boury
  * @since  2024-03-16
  */
-function generate_exception_html(Throwable $thrown) : void {
-    echo "<h1>" . $thrown::class . "</h1>";
-    echo "<h3>" . $thrown->getMessage() . "</h3>";
+function generate_exception_html(Throwable $thrown) : string {
+    $html_string = "
+<div class='error-display'>
+<h1 style='color: darkred;'>" . $thrown::class . "</h1><br>
+<h3 style='color: darkred;'>" . $thrown->getMessage() . "</h3><br>";
     $stack_trace = $thrown->getTraceAsString();
     while ($thrown->getPrevious() instanceof Throwable) {
         $thrown = $thrown->getPrevious();
-        echo $thrown::class . ": " . $thrown->getMessage() . "<br/>";
+        $html_string .= "Caused by: " . $thrown::class . ": " . $thrown->getMessage() . "<br/>";
     }
-    echo "<pre>" . $stack_trace . "</pre>";
+    
+    $html_string .= "<pre>" . $stack_trace . "</pre>";
+    $html_string .= "</div>";
+    return $html_string;
 }
 
 /**
