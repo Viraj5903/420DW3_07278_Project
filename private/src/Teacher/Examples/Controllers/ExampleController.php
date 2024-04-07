@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Teacher\Examples\Controllers;
 
 use JsonException;
-use Teacher\Examples\DAOs\ExampleDAO;
 use Teacher\Examples\Enumerations\DaysOfWeekEnum;
 use Teacher\Examples\Services\ExampleService;
 use Teacher\GivenCode\Abstracts\AbstractController;

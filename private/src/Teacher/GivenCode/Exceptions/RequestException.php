@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Teacher\GivenCode\Exceptions;
 
-use Teacher\GivenCode\Exceptions\RuntimeException;
 use Throwable;
 
 /**
@@ -21,8 +20,8 @@ use Throwable;
  * @since  2024-03-16
  */
 class RequestException extends RuntimeException {
-    private int $httpResponseCode = 500;
-    private array $httpHeaders = [];
+    private int $httpResponseCode;
+    private array $httpHeaders;
     
     /**
      * @param string         $message

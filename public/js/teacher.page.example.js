@@ -160,7 +160,7 @@ function createRecord() {
                 if (redirectionUrl) {
                     window.location = redirectionUrl;
                 }
-            } else if (request.status > 400) {
+            } else if (request.status >= 400) {
                 displayResponseError(JSON.parse(request.responseText));
             }
         }

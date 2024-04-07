@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Teacher\GivenCode\Domain;
 
-use Teacher\GivenCode\Domain\AbstractRoute;
 use Teacher\GivenCode\Exceptions\ValidationException;
 
 /**

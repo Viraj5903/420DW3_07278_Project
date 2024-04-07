@@ -274,7 +274,7 @@ function debug(mixed $input, bool $doEcho = true, bool $doDie = false) : ?string
  * TODO: Function documentation
  *
  * @param Throwable $thrown
- * @return void
+ * @return string
  *
  * @author Marc-Eric Boury
  * @since  2024-03-16

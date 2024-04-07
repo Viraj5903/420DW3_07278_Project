@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace Teacher\GivenCode\Abstracts;
 
 use Debug;
-use Teacher\GivenCode\Abstracts\IController;
 use Teacher\GivenCode\Enumerations\HTTPMethodsEnum;
 use Teacher\GivenCode\Exceptions\RequestException;
 

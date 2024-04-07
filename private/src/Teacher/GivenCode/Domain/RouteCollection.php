@@ -66,7 +66,7 @@ class RouteCollection implements IteratorAggregate {
      */
     public function addRoute(AbstractRoute $route, bool $optNoDuplicates = true) : void {
         if ($optNoDuplicates) {
-            foreach ($this->routes as $index => $existing_route) {
+            foreach ($this->routes as $existing_route) {
                 if ($route == $existing_route) {
                     // object values comparison
                     throw new ValidationException("Equivalent route already present in RouteCollection.");
@@ -90,7 +90,7 @@ class RouteCollection implements IteratorAggregate {
     public function removeRoute(AbstractRoute $route) : bool {
         if (in_array($route, $this->routes)) {
             $key = array_search($route, $this->routes);
-            array_splice($this->routes, 1, 1);
+            array_splice($this->routes, $key, 1);
             return true;
         }
         return false;
@@ -100,13 +100,12 @@ class RouteCollection implements IteratorAggregate {
      * TODO: Function documentation
      *
      * @param string $uri_path
-     * @param string $uri_base_directory
      * @return AbstractRoute|null
      *
      * @author Marc-Eric Boury
      * @since  2024-03-16
      */
-    public function match(string $uri_path, string $uri_base_directory = "") : ?AbstractRoute {
+    public function match(string $uri_path) : ?AbstractRoute {
         foreach ($this->routes as $route) {
             $route_path = strtolower(rtrim($route->getRoutePath(), "/"));
             $sanitized_uri_path = strtolower(rtrim($uri_path, "/"));

@@ -108,11 +108,10 @@ class ExampleService implements IService {
     /**
      * TODO: Function documentation
      *
-     * @param int $id
-     * @param     $optHardDelete
+     * @param int  $id
+     * @param bool $optHardDelete
      * @return void
      * @throws RuntimeException
-     *
      * @author Marc-Eric Boury
      * @since  2024-03-28
      */

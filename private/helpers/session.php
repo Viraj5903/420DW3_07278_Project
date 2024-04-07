@@ -34,3 +34,7 @@ if (empty($_COOKIE["testCookie"])) {
 }
 
 session_start();
+if (!empty($_SESSION["REQUEST_URI"])) {
+    $_SESSION["PREVIOUS_REQUEST_URI"] = $_SESSION["REQUEST_URI"];
+}
+$_SESSION["REQUEST_URI"] = $_SERVER["REQUEST_URI"];

@@ -24,7 +24,6 @@ use Teacher\GivenCode\Exceptions\ValidationException;
  * @since  2024-03-14
  */
 class APIRoute extends AbstractRoute {
-    private string $routePath;
     private string $controllerClass;
     
     /**

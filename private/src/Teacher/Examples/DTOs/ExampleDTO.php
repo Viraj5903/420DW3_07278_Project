@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Teacher\Examples\DTOs;
 
 use DateTime;
-use JetBrains\PhpStorm\Pure;
 use Teacher\Examples\Enumerations\DaysOfWeekEnum;
 use Teacher\GivenCode\Abstracts\AbstractDTO;
 use Teacher\GivenCode\Exceptions\ValidationException;
@@ -345,7 +344,7 @@ class ExampleDTO extends AbstractDTO {
     }
     
     // </editor-fold>
-   
+    
     
     /**
      * TODO: Function documentation

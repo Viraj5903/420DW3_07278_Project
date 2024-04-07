@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Teacher\Examples;
 
 use Debug;
+use ErrorException;
 use Exception;
-use Teacher\GivenCode\Exceptions\RequestException;
 use Teacher\GivenCode\Services\InternalRouter;
 
 /**
@@ -43,8 +43,15 @@ class ApplicationExample {
         try {
             // route the request
             $this->router->route();
-            // flush the output buffer
-            ob_end_flush();
+            
+            $error = error_get_last();
+            if ($error === null) {
+                // flush the output buffer
+                ob_end_flush();
+                return;
+            }
+            throw new ErrorException($error['message'], 500, $error['type'], $error['file'], $error['line']);
+            
         } catch (Exception $exception) {
             // empty the output buffer (without flushing)
             ob_end_clean();
