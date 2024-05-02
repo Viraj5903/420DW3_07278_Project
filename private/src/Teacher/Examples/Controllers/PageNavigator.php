@@ -9,7 +9,7 @@ declare(strict_types=1);
  * (c) Copyright 2024 Marc-Eric Boury 
  */
 
-namespace Teacher\Examples\Services;
+namespace Teacher\Examples\Controllers;
 
 use Teacher\GivenCode\Abstracts\IService;
 

@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 declare(strict_types=1);
 
 /*
@@ -27,6 +27,9 @@ use Teacher\GivenCode\Services\DBConnectionService;
 class BookDAO {
     
     public function __construct() {}
+    
+    
+    
     
     /**
      * TODO: Function documentation

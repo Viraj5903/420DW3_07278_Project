@@ -11,12 +11,15 @@ declare(strict_types=1);
 
 namespace Teacher\GivenCode\Services;
 
+use Marc\Project\controllers\myTestController;
 use Teacher\Examples\Controllers\AuthorController;
 use Teacher\Examples\Controllers\BookController;
 use Teacher\Examples\Controllers\ExampleController;
 use Teacher\Examples\Controllers\LoginController;
-use Teacher\Examples\Services\PageNavigator;
+use Teacher\Examples\Controllers\MyNewController;
+use Teacher\Examples\Controllers\PageNavigator;
 use Teacher\GivenCode\Abstracts\IService;
+use Teacher\GivenCode\Domain\AbstractRoute;
 use Teacher\GivenCode\Domain\APIRoute;
 use Teacher\GivenCode\Domain\CallableRoute;
 use Teacher\GivenCode\Domain\RouteCollection;
@@ -73,5 +76,19 @@ class InternalRouter implements IService {
         
         $route->route();
         
+    }
+    
+    /**
+     * Adds an {@see AbstractRoute internal route definition} to the {@see InternalRouter}'s {@see RouteCollection}.
+     *
+     * @param AbstractRoute $route The route definition to add to the route collection.
+     * @return void
+     * @throws ValidationException
+     *
+     * @author Marc-Eric Boury
+     * @since  2024-04-12
+     */
+    public function addRoute(AbstractRoute $route) : void {
+        $this->routes->addRoute($route);
     }
 }

@@ -34,7 +34,7 @@ $all_authors = $author_service->getAllAuthors();
     <link rel="stylesheet" href="<?= WEB_CSS_DIR . "teacher.standard.css" ?>">
     <script type="text/javascript">
         
-        const API_BOOK_URL = "<?= WEB_ROOT_DIR . "api/login" ?>";
+        const API_BOOK_URL = "<?= WEB_ROOT_DIR . "api/books" ?>";
     
     </script>
     <script type="text/javascript" src="<?= WEB_JS_DIR . "jquery-3.7.1.min.js" ?>" defer></script>
@@ -126,7 +126,7 @@ $all_authors = $author_service->getAllAuthors();
                         $label_text = $author->getFirstName() . " " . $author->getLastName();
                         echo <<< HTDOC
                     <div class="col-12">
-                        <input id="book-author-$author_id" class="form-check-input" type="checkbox" name="authors[$author_id]" required>
+                        <input id="book-author-$author_id" class="form-check-input book-authors" type="checkbox" name="authors[$author_id]" data-author-id="$author_id" required>
                         <label class="form-check-label" for="book-author-$author_id">$label_text</label>
                     </div>
 HTDOC;

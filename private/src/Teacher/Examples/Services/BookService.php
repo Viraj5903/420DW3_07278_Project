@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Teacher\Examples\Services;
 
+use Teacher\Examples\DAOs\AuthorBookDAO;
 use Teacher\Examples\DAOs\BookDAO;
 use Teacher\Examples\DTOs\AuthorDTO;
 use Teacher\Examples\DTOs\BookDTO;
@@ -25,9 +26,11 @@ use Teacher\GivenCode\Abstracts\IService;
 class BookService implements IService {
     
     private BookDAO $dao;
+    private AuthorBookDAO $authorBookDao;
     
     public function __construct() {
         $this->dao = new BookDAO();
+        $this->authorBookDao = new AuthorBookDAO();
     }
     
     /**
@@ -89,6 +92,18 @@ class BookService implements IService {
      */
     public function getBookAuthorsByBookId(int $id) : array {
         return $this->dao->getAuthorsByBookId($id);
+    }
+    
+    public function deleteAllBookAuthorAssociationsForBook(BookDTO $book) : void {
+        $this->deleteAllBookAuthorAssociationsForBookId($book->getId());
+    }
+    
+    public function deleteAllBookAuthorAssociationsForBookId(int $bookId) : void {
+        $this->authorBookDao->deleteAllByBookId($bookId);
+    }
+    
+    public function associateBookWithAuthor(int $bookId, int $authorId) : void {
+        $this->authorBookDao->createForAuthorAndBook($authorId, $bookId);
     }
     
 }

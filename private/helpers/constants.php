@@ -59,6 +59,12 @@ const PRJ_SRC_DIR = PRJ_PRIVATE_DIR . "src" . DIRECTORY_SEPARATOR;
 const PRJ_FRAGMENTS_DIR = PRJ_PRIVATE_DIR . "fragments" . DIRECTORY_SEPARATOR;
 
 /**
+ * Absolute path to the 'config' directory of the project.
+ * @const
+ */
+const PRJ_CONFIG_DIR = PRJ_PRIVATE_DIR . "config" . DIRECTORY_SEPARATOR;
+
+/**
  * Absolute path to the public 'images' directory of the project.
  * @const
  */
@@ -100,7 +106,7 @@ define("REQUEST_PATH", explode("?", REQUEST_URI)[0]);
  * Example: 'localhost/<rootDirectory>'
  * @const
  */
-const WEB_ROOT_DIR = WEB_DIRECTORY_SEPARATOR . "420DW3_07278_Project" . WEB_DIRECTORY_SEPARATOR; // REQUEST_HOSTNAME . WEB_DIRECTORY_SEPARATOR . "420DW3_07278_Project" . WEB_DIRECTORY_SEPARATOR;
+const WEB_ROOT_DIR = WEB_DIRECTORY_SEPARATOR . PRJ_ROOT_DIRNAME . WEB_DIRECTORY_SEPARATOR; // REQUEST_HOSTNAME . WEB_DIRECTORY_SEPARATOR . "420DW3_07278_Project" . WEB_DIRECTORY_SEPARATOR;
 
 const WEB_PUBLIC_DIR = WEB_ROOT_DIR . "public" . WEB_DIRECTORY_SEPARATOR;
 

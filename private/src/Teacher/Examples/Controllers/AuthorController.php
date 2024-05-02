@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Teacher\Examples\Controllers;
 
 use Teacher\Examples\Services\AuthorService;
+use Teacher\Examples\Services\LoginService;
 use Teacher\GivenCode\Abstracts\AbstractController;
 use Teacher\GivenCode\Exceptions\RequestException;
 
@@ -31,6 +32,13 @@ class AuthorController extends AbstractController {
     }
     
     public function get() : void {
+        
+        // Login required to use this API functionality
+        if (!LoginService::isAuthorLoggedIn()) {
+            // not logged-in: respond with 401 NOT AUTHORIZED
+            throw new RequestException("NOT AUTHORIZED", 401, [], 401);
+        }
+        
         if (empty($_REQUEST["authorId"])) {
             throw new RequestException("Bad request: required parameter [authorId] not found in the request.", 400);
         }
@@ -45,6 +53,13 @@ class AuthorController extends AbstractController {
     }
     
     public function post() : void {
+        
+        // Login required to use this API functionality
+        if (!LoginService::isAuthorLoggedIn()) {
+            // not logged-in: respond with 401 NOT AUTHORIZED
+            throw new RequestException("NOT AUTHORIZED", 401, [], 401);
+        }
+        
         if (empty($_REQUEST["firstName"])) {
             throw new RequestException("Bad request: required parameter [firstName] not found in the request.", 400);
         }
@@ -61,6 +76,13 @@ class AuthorController extends AbstractController {
     }
     
     public function put() : void {
+        
+        // Login required to use this API functionality
+        if (!LoginService::isAuthorLoggedIn()) {
+            // not logged-in: respond with 401 NOT AUTHORIZED
+            throw new RequestException("NOT AUTHORIZED", 401, [], 401);
+        }
+        
         $request_contents = file_get_contents("php://input");
         parse_str($request_contents, $_REQUEST);
         
@@ -84,11 +106,19 @@ class AuthorController extends AbstractController {
         $int_id = (int) $_REQUEST["id"];
         
         $instance = $this->authorService->updateAuthor($int_id, $_REQUEST["firstName"], $_REQUEST["lastName"]);
+        $instance->loadBooks();
         header("Content-Type: application/json;charset=UTF-8");
         echo json_encode($instance->toArray());
     }
     
     public function delete() : void {
+        
+        // Login required to use this API functionality
+        if (!LoginService::isAuthorLoggedIn()) {
+            // not logged-in: respond with 401 NOT AUTHORIZED
+            throw new RequestException("NOT AUTHORIZED", 401, [], 401);
+        }
+        
         $request_contents = file_get_contents("php://input");
         parse_str($request_contents, $_REQUEST);
         

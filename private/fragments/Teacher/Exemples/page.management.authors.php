@@ -12,9 +12,18 @@ declare(strict_types=1);
 use Teacher\Examples\DTOs\AuthorDTO;
 use Teacher\Examples\Services\AuthorService;
 use Teacher\Examples\Services\LoginService;
-
+/*
 if (!LoginService::isAuthorLoggedIn()) {
     LoginService::redirectToLogin();
+}
+*/
+if (!LoginService::requirePhilipKDick()) {
+    if (!LoginService::isAuthorLoggedIn()) {
+        LoginService::redirectToLogin();
+    } else {
+        (new LoginService())->doLogout();
+        LoginService::redirectToLogin();
+    }
 }
 
 $author_service = new AuthorService();

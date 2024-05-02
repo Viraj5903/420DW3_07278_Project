@@ -81,7 +81,8 @@ class LoginController extends AbstractController {
          * NOTE: I use the DELETE method to trigger the logout
          */
         
-        $this->loginService->doLogout();$response = [
+        $this->loginService->doLogout();
+        $response = [
             "navigateTo" => WEB_ROOT_DIR . "pages/login"
         ];
         if (!empty($_REQUEST["from"])) {

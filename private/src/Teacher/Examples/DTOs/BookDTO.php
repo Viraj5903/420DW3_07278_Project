@@ -296,6 +296,63 @@ class BookDTO {
     }
     
     
+    // <editor-fold defaultstate="collapsed" desc="VALIDATION METHODS">
+    
+    public function validateForDbCreation() : void {
+        // ID must not be set
+        if (!empty($this->id)) {
+            throw new ValidationException("BookDTO is not valid for DB creation: ID value already set.");
+        }
+        // title is required
+        if (empty($this->title)) {
+            throw new ValidationException("BookDTO is not valid for DB creation: title value not set.");
+        }
+        // isbn is required
+        if (empty($this->isbn)) {
+            throw new ValidationException("BookDTO is not valid for DB creation: isbn value not set.");
+        }
+        // publicationYear is required
+        if (empty($this->publicationYear)) {
+            throw new ValidationException("BookDTO is not valid for DB creation: publicationYear value not set.");
+        }
+        if (!is_null($this->dateCreated)) {
+            throw new ValidationException("BookDTO is not valid for DB creation: dateCreated value already set.");
+        }
+        if (!is_null($this->dateLastModified)) {
+            throw new ValidationException("BookDTO is not valid for DB creation: dateLastModified value already set.");
+        }
+        if (!is_null($this->dateDeleted)) {
+            throw new ValidationException("BookDTO is not valid for DB creation: dateDeleted value already set.");
+        }
+    }
+    
+    public function validateForDbUpdate() : void {
+        // ID must be set
+        if (empty($this->id)) {
+            throw new ValidationException("BookDTO is not valid for DB update: ID value not set.");
+        }
+        // title is required
+        if (empty($this->title)) {
+            throw new ValidationException("BookDTO is not valid for DB update: title value not set.");
+        }
+        // isbn is required
+        if (empty($this->isbn)) {
+            throw new ValidationException("BookDTO is not valid for DB update: isbn value not set.");
+        }
+        // publicationYear is required
+        if (empty($this->publicationYear)) {
+            throw new ValidationException("BookDTO is not valid for DB update: publicationYear value not set.");
+        }
+    }
+    
+    public function validateForDbDelete() : void {
+        // ID must be set
+        if (empty($this->id)) {
+            throw new ValidationException("BookDTO is not valid for DB update: ID value not set.");
+        }
+    }
+    
+    
     /**
      * TODO: Function documentation
      *
@@ -357,4 +414,7 @@ class BookDTO {
                                           500);
         }
     }
+    
+    
+    // </editor-fold>
 }

@@ -30,14 +30,26 @@ class LoginService implements IService {
         $this->authorService = new AuthorService();
     }
     
+    public static function requirePhilipKDick() : bool {
+        $return_value = false;
+        if (!empty($_SESSION["LOGGED_IN_AUTHOR"]) && ($_SESSION["LOGGED_IN_AUTHOR"] instanceof AuthorDTO)) {
+            $requiredAuthor = (new AuthorService())->getAuthorById(1);
+            $author_object = $_SESSION["LOGGED_IN_AUTHOR"];
+            if ($author_object->getId() === $requiredAuthor->getId()) {
+                $return_value = true;
+            }
+        }
+        return $return_value;
+    }
+    
     public static function isAuthorLoggedIn() : bool {
         $return_val = false;
         if (!empty($_SESSION["LOGGED_IN_AUTHOR"]) && ($_SESSION["LOGGED_IN_AUTHOR"] instanceof AuthorDTO)) {
             $return_val = true;
         }
         Debug::log(("Is logged in author check result: [" . $return_val)
-                        ? "true"
-                        : ("false" . "]" .
+                       ? "true"
+                       : ("false" . "]" .
                 ($return_val ? (" id# [" . $_SESSION["LOGGED_IN_AUTHOR"]->getId() . "].") : ".")));
         return $return_val;
     }

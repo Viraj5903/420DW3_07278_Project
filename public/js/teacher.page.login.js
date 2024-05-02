@@ -7,6 +7,7 @@ $("#loginButton").on("click", (event) => {
         dataType: "json",
         data: data
     }).done((data, status, jqXHR) => {
+        console.log(data);
         if ("navigateTo" in data) {
             window.location = data.navigateTo;
         }
