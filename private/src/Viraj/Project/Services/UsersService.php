@@ -31,7 +31,7 @@ class UsersService {
     // Class properties
     private UsersDAO $usersDAO; // UsersDAO object for interacting with the users table of the database.
     private CryptographyService $cryptographyService; // CryptographyService object for hashing passwords.
-    private UserPermissionDAO $userPermissionDAO; // CryptographyService object for hashing passwords.
+    private UserPermissionDAO $userPermissionDAO; // UserPermissionDAO object for interacting with the user_permissions table of the database.
     
     /**
      * Constructor for UsersService class.
@@ -41,7 +41,7 @@ class UsersService {
     public function __construct() {
         $this->usersDAO = new UsersDAO(); // Initialize UsersDAO object.
         $this->cryptographyService = new CryptographyService(); // Initialize CryptographyService object.
-        $this->userPermissionDAO = new UserPermissionDAO();
+        $this->userPermissionDAO = new UserPermissionDAO(); // Initialize UserPermissionDAO object.
     }
     
     /**

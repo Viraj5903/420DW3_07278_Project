@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Viraj\Project\Services;
 
 use Exception;
+use Viraj\Project\DAOs\UserGroupPermissionDAO;
 use Viraj\Project\DTOs\UserGroupDTO;
 use Viraj\Project\DAOs\UserGroupsDAO;
 use Teacher\GivenCode\Exceptions\RuntimeException;
@@ -28,6 +29,7 @@ use Teacher\GivenCode\Exceptions\ValidationException;
 class UserGroupsService {
     // Class properties
     private UserGroupsDAO $userGroupsDAO; // UserGroupsDAO object for interacting with the permissions table of the database.
+    private UserGroupPermissionDAO $userGroupPermissionDAO; // UserGroupsDAO object for interacting with the user_group_permissions table of the database.
     
     /**
      * Constructor for UserGroupsService class.
@@ -35,6 +37,7 @@ class UserGroupsService {
      */
     public function __construct() {
         $this->userGroupsDAO = new UserGroupsDAO(); // Initialize UserGroupsDAO object.
+        $this->userGroupPermissionDAO = new UserGroupPermissionDAO(); // Initialize UserGroupPermissionDAO object.
     }
     
     /**
@@ -58,7 +61,7 @@ class UserGroupsService {
      */
     public function getUserGroupById(int $id) : ?UserGroupDTO {
         // return $this->userGroupsDAO->getById($id);
-        $user_group = $this->userGroupsDAO->getById();
+        $user_group = $this->userGroupsDAO->getById($id);
         $user_group?->loadPermissions();
         return $user_group;
     }
@@ -72,11 +75,13 @@ class UserGroupsService {
      * @return UserGroupDTO The UserGroupDTO object representing the newly created user group.
      * @throws RuntimeException If failure to create and insert new user group into the database.
      */
-    public function createUserGroup(string $groupName, string $description) : UserGroupDTO {
+    public function createUserGroup(string $groupName, string $description, array $permissions) : UserGroupDTO {
         
         try {
             $user_group = UserGroupDTO::fromValues($groupName, $description);
-            return $this->userGroupsDAO->create($user_group);
+            $user_group = $this->userGroupsDAO->create($user_group);
+            $this->userGroupPermissionDAO->createManyForUserGroup($user_group->getId(), $permissions);
+            return $this->getUserGroupById($user_group->getId());
         } catch (Exception $exception) {
             throw new RuntimeException("Failure to create user group [$groupName, $description].", (int) $exception->getCode(), $exception);
         }
@@ -91,7 +96,7 @@ class UserGroupsService {
      * @return UserGroupDTO The UserGroupDTO object representing the updated user group.
      * @throws RuntimeException If failure to update user_group into the database.
      */
-    public function updateUserGroup(int $id, string $groupName, string $description) : UserGroupDTO {
+    public function updateUserGroup(int $id, string $groupName, string $description, array $permissions) : UserGroupDTO {
         
         try {
             
@@ -112,9 +117,17 @@ class UserGroupsService {
                 
                 $result = $this->userGroupsDAO->update($user_group); // Update the  user_group in the database.
                 
+                // Removing all old permissions.
+                $this->userGroupPermissionDAO->deleteAllByUserGroupId($result->getId());
+                
+                // Adding all new permisssions.
+                if (!empty($permissions)) {
+                    $this->userGroupPermissionDAO->createManyForUserGroup($result->getId(), $permissions);
+                }
+                
                 $connection->commit(); // Commit the transaction to save changes.
                 
-                return $result; // Return the updated user_group.
+                return $this->getUserGroupById($result->getId()); // Return the updated user.
                 
             } catch (Exception $inner_exception) {
                 $connection->rollBack();

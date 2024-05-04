@@ -1,3 +1,6 @@
+
+document.getElementById("clear-button").onclick = clearForm;
+
 function clearForm() {
     $("#user-form").get(0).reset();
     $("#create-button").prop("disabled", false);
@@ -7,7 +10,7 @@ function clearForm() {
     document.getElementById("user-selector").value = "";
 }
 
-document.getElementById("clear-button").onclick = clearForm;
+
 document.getElementById("view-user-button").onclick = loadUser;
 
 function loadUser() {
@@ -52,16 +55,13 @@ function fillFormFromResponseObject(entityObject) {
     }
     
     // uncheck all authors
-    $(".user-permissions").each((index, inputElem) => {
-        $(inputElem).prop("checked", false)
-    });
+    $(".user-permissions").each((index, inputElem) => $(inputElem).prop("checked", false));
     
     if ('permissions' in entityObject) {
         if (typeof entityObject.permissions === "object") {
             console.log(Object.keys(entityObject.permissions));
-            Object.keys(entityObject.permissions).forEach((value) => {
-                $(`#user-permission-${value}`).prop("checked", true);
-            });
+            Object.keys(entityObject.permissions).forEach((value) => $(`#user-permission-${value}`)
+                .prop("checked", true));
         }
     }
     
@@ -70,6 +70,7 @@ function fillFormFromResponseObject(entityObject) {
     $("#update-button").prop("disabled", false);
     $("#delete-button").prop("disabled", false);
 }
+
 function getFormDataAsUrlEncoded() {
     const formData = new FormData();
     formData.set("id", $("#id").val());
@@ -172,7 +173,7 @@ function updateUser() {
          console.log("Received data: ", data);
          
          // Replace the text in the selector with the updated values
-         let formIdValue = document.getElementById("id").value;
+         const formIdValue = document.getElementById("id").value;
          if ('username' in data) {
              const selector = /** @type {HTMLSelectElement} */ document.getElementById("user-selector");
              // Note: voluntary non-identity equality check ( == instead of === ): disable warning

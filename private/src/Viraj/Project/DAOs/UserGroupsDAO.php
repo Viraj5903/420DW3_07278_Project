@@ -149,7 +149,10 @@ class UserGroupsDAO {
         }
         
         // Execute the SQL statement.
-        $statement->execute();
+        $result = $statement->execute();
+        if ($result === false) {
+            throw new RuntimeException("Failed to create new user group.");
+        }
         
         // Get the ID of the newly inserted user_group record.
         $new_id = (int) $connection->lastInsertId();

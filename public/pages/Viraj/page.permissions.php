@@ -2,7 +2,6 @@
 declare(strict_types=1);
 
 use Viraj\Project\DTOs\PermissionDTO;
-use Viraj\Project\DTOs\UserDTO;
 use Viraj\Project\Services\LoginService;
 use Viraj\Project\Services\PermissionsService;
 
@@ -10,10 +9,34 @@ if (!LoginService::isUserLoggedIn()) {
     LoginService::redirectToLogin();
 }
 
+//const PERMISSION_MANAGE_PERMISSION = "MANAGE_PERMISSIONS";
+
 $user = $_SESSION["LOGGED_IN_USER"];
+//foreach ($user->getPermissions() as $permission) {
+//    var_export($permission->toArray()) . "<br>";
+//}
+
+$access = false;
+
+foreach ($user->getPermissions() as $permission) {
+    if (($permission->toArray())["uniquePermission"] === "MANAGE_PERMISSIONS") {
+        $access = true;
+    }
+}
+
+if (!$access) {
+    include PRJ_PAGES_DIR . "Viraj" . DIRECTORY_SEPARATOR . "page.access_denied.php";
+    exit();
+}
 
 $permission_service = new PermissionsService();
-$all_permissions = $permission_service->getAllPermissions();
+try {
+    $all_permissions = $permission_service->getAllPermissions();
+} catch (Exception $exception) {
+    var_export($exception->getMessage());
+    var_export($exception->getTrace());
+    exit();
+}
 
 ?>
 
@@ -34,7 +57,7 @@ $all_permissions = $permission_service->getAllPermissions();
         </div>
         <div class="row justify-content-center">
             <div class="col-12 col-md-4 row align-items-end align-items-md-center justify-content-center justify-content-md-end">
-                <label class="col-12 text-start text-md-end align-items-md-center" for="user-selector">Select a user:</label>
+                <label class="col-12 text-start text-md-end align-items-md-center" for="permission-selector">Select a permission:</label>
             </div>
             <div class="col-12 col-md-4 row justify-content-center">
                 <select id="permission-selector" class="">

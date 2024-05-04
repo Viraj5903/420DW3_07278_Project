@@ -10,7 +10,7 @@ if (!LoginService::isUserLoggedIn()) {
     LoginService::redirectToLogin();
 }
 
-const USER_PERMISSION = "MANAGE_USERS";
+//const USER_MANAGE_PERMISSION = "MANAGE_USERS";
 
 $user = $_SESSION["LOGGED_IN_USER"];
 //foreach ($user->getPermissions() as $permission) {
@@ -20,7 +20,7 @@ $user = $_SESSION["LOGGED_IN_USER"];
 $access = false;
 
 foreach ($user->getPermissions() as $permission) {
-    if (($permission->toArray())["uniquePermission"] === USER_PERMISSION) {
+    if (($permission->toArray())["uniquePermission"] === "MANAGE_USERS") {
         $access = true;
     }
 }
@@ -32,9 +32,14 @@ if (!$access) {
 
 $user_service = new UsersService();
 $permission_service = new PermissionsService();
-
-$all_users = $user_service->getAllUsers();
-$all_permissions = $permission_service->getAllPermissions();
+try {
+    $all_users = $user_service->getAllUsers();
+    $all_permissions = $permission_service->getAllPermissions();
+} catch (Exception $exception) {
+    var_export($exception->getMessage());
+    var_export($exception->getTrace());
+    exit();
+}
 ?>
 
 <!DOCTYPE html>

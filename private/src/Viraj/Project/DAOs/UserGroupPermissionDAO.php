@@ -65,7 +65,7 @@ class UserGroupPermissionDAO {
         
         $statement = $connection->prepare(self::CREATE_QUERY);
         
-        $statement->bindValue(":$userGroupId", $userGroupId, PDO::PARAM_INT);
+        $statement->bindValue(":userGroupId", $userGroupId, PDO::PARAM_INT);
         
         foreach ($permissionIds as $permission_id) {
             $statement->bindValue(":permissionId", $permission_id, PDO::PARAM_INT);

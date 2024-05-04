@@ -150,7 +150,10 @@ class PermissionsDAO {
             $statement->bindValue(":description", $permission->getDescription(), PDO::PARAM_STR);
         }
         // Execute the SQL statement.
-        $statement->execute();
+        $result = $statement->execute();
+        if ($result === false) {
+            throw new RuntimeException("Failed to create new permission.");
+        }
         
         // Get the ID of the newly inserted permission record.
         $new_id = (int) $connection->lastInsertId();
