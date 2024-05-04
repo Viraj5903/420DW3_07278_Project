@@ -85,9 +85,9 @@ class PermissionsController extends AbstractController {
         if (empty($_REQUEST["permission_name"])) { // Check if the "permission_name" parameter is missing in the request.
             throw new RequestException("Bad request: required parameter [permission_name] not found in the request.", 400);
         }
-        if (empty($_REQUEST["description"])) { // Check if the "description" parameter is missing in the request.
+        /*if (empty($_REQUEST["description"])) { // Check if the "description" parameter is missing in the request.
             throw new RequestException("Bad request: required parameter [description] not found in the request.", 400);
-        }
+        }*/
         
         // NOTE: no need for validation of the string lengths here, as that is done by the setter methods of the PermissionDTO class used when creating a PermissionDTO instance in the create method of PermissionsService.
         
@@ -109,27 +109,10 @@ class PermissionsController extends AbstractController {
      * @throws ValidationException If validation of permission data fails.
      */
     public function put() : void {
-        /*
-        * PUT request handler is designed to update a permission entity record in the database
-        * and return it to the client for handling client-side.
-        *
-        * NOTE: PHP does not always parse PUT and DELETE requests. It must be done manually by reading
-        * the PHP://input data stream.
-        *
-        * It expects the required data attributes for a permission entity as well as the ID as JSON request data  and
-        * returns the updated record data also as JSON.
-        */
         
-        // As stated, we need to manually parse the input content of PUT and DELETE requests.
-        // For this PUT update permission, that is application/json content, so we use json_decode()
-        
-        // Parse JSON request data.
-        $request_contents = file_get_contents('php://input'); // Read raw input data.
-        try {
-            $_REQUEST = json_decode($request_contents, true, 512, JSON_THROW_ON_ERROR); // Decode JSON data.
-        } catch (JsonException $json_excep) {
-            throw new RequestException("Invalid request contents format. Valid JSON is required.", 400, [], 400, $json_excep);
-        }
+        // Parse request data.
+        $request_contents = file_get_contents("php://input");
+        parse_str($request_contents, $_REQUEST);
         
         // Validate request parameters.
         if (empty($_REQUEST["id"])) { // Check if the "id" parameter is missing in the request.

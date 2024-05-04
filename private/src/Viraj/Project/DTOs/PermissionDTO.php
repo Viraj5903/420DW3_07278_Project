@@ -25,8 +25,9 @@ class PermissionDTO {
      * @const
      */
     public const TABLE_NAME = "permissions";
-    public const DESCRIPTION_MAX_LENGTH = 1024;
-    public const PERMISSION_MAX_LENGTH = 256;
+    public const DESCRIPTION_MAX_LENGTH = 256;
+    public const PERMISSION_NAME_MAX_LENGTH = 64;
+    public const UNIQUE_PERMISSION_MAX_LENGTH = 64;
     
     // Class properties
     private int $id;
@@ -95,8 +96,8 @@ class PermissionDTO {
             DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["created_at"])
         );
         
-        if (!empty($dbArray["last_modified_at"])) {
-            $object->setLastModificationDate(DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbArray["last_modified_at"]));
+        if (!empty($dbAssocArray["last_modified_at"])) {
+            $object->setLastModificationDate(DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["last_modified_at"]));
         }
         
         // return the created instance
@@ -184,8 +185,12 @@ class PermissionDTO {
      * Setter for <code>UniquePermission</code>.
      *
      * @param string $uniquePermission The unique identifier to set.
+     * @throws ValidationException If the unique permission exceeds the maximum length.
      */
     public function setUniquePermission(string $uniquePermission) : void {
+        if (mb_strlen($uniquePermission) > self::UNIQUE_PERMISSION_MAX_LENGTH) {
+            throw new ValidationException("Unique Permission value must not be longer than " . self::UNIQUE_PERMISSION_MAX_LENGTH . " characters.");
+        }
         $this->uniquePermission = $uniquePermission;
     }
     
@@ -205,8 +210,8 @@ class PermissionDTO {
      * @throws ValidationException If the permission exceeds the maximum length.
      */
     public function setPermissionName(string $permissionName) : void {
-        if (mb_strlen($permissionName) > self::PERMISSION_MAX_LENGTH) {
-            throw new ValidationException("Permission value must not be longer than " . self::PERMISSION_MAX_LENGTH . " characters.");
+        if (mb_strlen($permissionName) > self::PERMISSION_NAME_MAX_LENGTH) {
+            throw new ValidationException("Permission value must not be longer than " . self::PERMISSION_NAME_MAX_LENGTH . " characters.");
         }
         $this->permissionName = $permissionName;
     }
@@ -299,12 +304,12 @@ class PermissionDTO {
             return false;
         }
         // description is required
-        if (empty($this->description)) {
+        /*if (empty($this->description)) {
             if ($optThrowExceptions) {
                 throw new ValidationException("PermissionDTO is not valid for DB creation: description value not set.");
             }
             return false;
-        }
+        }*/
         // creationDate must not be set
         if (!is_null($this->creationDate)) {
             if ($optThrowExceptions) {
@@ -353,12 +358,12 @@ class PermissionDTO {
             return false;
         }
         // description is required
-        if (empty($this->description)) {
+        /*if (empty($this->description)) {
             if ($optThrowExceptions) {
                 throw new ValidationException("PermissionDTO is not valid for DB updation: description value not set.");
             }
             return false;
-        }
+        }*/
         return true;
     }
     
@@ -381,24 +386,7 @@ class PermissionDTO {
     }
     
     /**
-     * Function that convert PermissionDTO object into JSON.
-     *
-     * @return string
-     */
-    public function toJson() : string {
-        $array = [
-            "id" => $this->getId(),
-            "uniquePermission" => $this->getUniquePermission(),
-            "permissionName" => $this->getPermissionName(),
-            "description" => $this->getDescription(),
-            "creationDate" => $this->getCreationDate()->format(HTML_DATETIME_FORMAT),
-            "lastModificationDate" => $this->getLastModificationDate()->format(HTML_DATETIME_FORMAT),
-        ];
-        return json_encode($array, JSON_PRETTY_PRINT);
-    }
-    
-    /**
-     * Converting PermissionDTO object into array.
+     * Converting PermissionDTO object into JSON array.
      *
      * @return array
      */

@@ -1,16 +1,34 @@
 <?php
 declare(strict_types=1);
 
+use Viraj\Project\DTOs\UserDTO;
 use Viraj\Project\Services\LoginService;
 use Viraj\Project\Services\PermissionsService;
 use Viraj\Project\Services\UsersService;
 
-//if (!LoginService::isUserLoggedIn()) {
-//    LoginService::redirectToLogin();
-//}
-//
-//$user = $_SESSION["LOGGED_IN_USER"];
+if (!LoginService::isUserLoggedIn()) {
+    LoginService::redirectToLogin();
+}
 
+const USER_PERMISSION = "MANAGE_USERS";
+
+$user = $_SESSION["LOGGED_IN_USER"];
+//foreach ($user->getPermissions() as $permission) {
+//    var_export($permission->toArray()) . "<br>";
+//}
+
+$access = false;
+
+foreach ($user->getPermissions() as $permission) {
+    if (($permission->toArray())["uniquePermission"] === USER_PERMISSION) {
+        $access = true;
+    }
+}
+
+if (!$access) {
+    include PRJ_PAGES_DIR . "Viraj" . DIRECTORY_SEPARATOR . "page.access_denied.php";
+    exit();
+}
 
 $user_service = new UsersService();
 $permission_service = new PermissionsService();
@@ -71,7 +89,7 @@ $all_permissions = $permission_service->getAllPermissions();
                 <div class="col-12">
                     <label class="form-label" for="username">Username:</label>
                     <input id="username" class="form-control" type="text" name="username"
-                           maxlength="255" required>
+                           maxlength="<?= UserDTO::USERNAME_MAX_LENGTH ?>" required>
                 </div>
                 <div class="col-12">
                     <label class="form-label" for="password">Password:</label>
@@ -81,7 +99,7 @@ $all_permissions = $permission_service->getAllPermissions();
                 <div class="col-12">
                     <label class="form-label" for="email">Email:</label>
                     <input id="email" class="form-control" type="email" name="email"
-                           maxlength="255" required>
+                           maxlength="<?= UserDTO::EMAIL_MAX_LENGTH ?>" required>
                 </div>
                 <div class="col-12 flex-column">
                     <label class="form-label col-12 text-start">Permissions:</label>

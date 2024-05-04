@@ -83,12 +83,14 @@ class UsersController extends AbstractController {
             throw new RequestException("Bad request: required parameter [email] not found in the request.", 400);
         }
         
-        $pemissions = array_map('intval', explode(",", $_REQUEST["permissions"]));
+        $permissions = [];
         
-        // NOTE: no need for validation of the string lengths here, as that is done by the setter methods of the UserDTO class used when creating an UserDTO instance in the creation method of UsersService.
+        if (!empty($_REQUEST["permissions"])) {
+            $permissions = array_map('intval', explode(",", $_REQUEST["permissions"]));
+        }
         
         // Create new user using provided data.
-        $instance = $this->usersService->createUser($_REQUEST["username"], $_REQUEST["password"], $_REQUEST["email"], $pemissions); // Create new user.
+        $instance = $this->usersService->createUser($_REQUEST["username"], $_REQUEST["password"], $_REQUEST["email"], $permissions); // Create new user.
         
         // Output newly created user data as JSON response.
         header("Content-Type: application/json;charset=UTF-8"); // Set response header content type.
@@ -106,7 +108,7 @@ class UsersController extends AbstractController {
      */
     public function put() : void {
         
-        // Parse JSON request data.
+        // Parse request data.
         $request_contents = file_get_contents("php://input");
         parse_str($request_contents, $_REQUEST);
         
@@ -132,13 +134,14 @@ class UsersController extends AbstractController {
             throw new RequestException("Bad request: required parameter [email] not found in the request.", 400);
         }
         
-        // NOTE: no need for validation of the string lengths here, as that is done by the setter methods of the
-        // UserDTO class used when creating an UserDTO instance in the creation method of UsersService.
-        
         // Update existing user using provided data.
         $int_id = (int) $_REQUEST["id"]; // Convert the "id" parameter to an integer.
         
-        $permissions = array_map('intval', explode(",", $_REQUEST["permissions"]));
+        $permissions = [];
+        
+        if (!empty($_REQUEST["permissions"])) {
+            $permissions = array_map('intval', explode(",", $_REQUEST["permissions"]));
+        }
         
         $instance = $this->usersService->updateUser($int_id, $_REQUEST["username"], $_REQUEST["password"], $_REQUEST["email"], $permissions); // Update existing user.
         

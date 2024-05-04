@@ -1,20 +1,21 @@
 function clearForm() {
-    $("#user-form").get(0).reset();
+    $("#permission-form").get(0).reset();
+    $("#description").val("");
     $("#create-button").prop("disabled", false);
     $("#clear-button").prop("disabled", true);
     $("#update-button").prop("disabled", true);
     $("#delete-button").prop("disabled", true);
-    document.getElementById("user-selector").value = "";
+    document.getElementById("permission-selector").value = "";
 }
 
 document.getElementById("clear-button").onclick = clearForm;
-document.getElementById("view-user-button").onclick = loadUser;
+document.getElementById("view-permission-button").onclick = loadPermission;
 
-function loadUser() {
-    const selectedRecordId = document.getElementById("user-selector").value;
+function loadPermission() {
+    const selectedRecordId = document.getElementById("permission-selector").value;
     
     const options = {
-        "url": `${API_USER_URL}?id=${selectedRecordId}`,
+        "url": `${API_PERMISSION_URL}?id=${selectedRecordId}`,
         "method": "get",
         "dataType": "json"
     };
@@ -35,14 +36,14 @@ function fillFormFromResponseObject(entityObject) {
     if ('id' in entityObject) {
         $("#id").val(entityObject.id);
     }
-    if ('username' in entityObject) {
-        $("#username").val(entityObject.username);
+    if ('uniquePermission' in entityObject) {
+        $("#unique_permission").val(entityObject.uniquePermission);
     }
-    if ('passwordHash' in entityObject) {
-        $("#password").val(entityObject.passwordHash);
+    if ('permissionName' in entityObject) {
+        $("#permission_name").val(entityObject.permissionName);
     }
-    if ('email' in entityObject) {
-        $("#email").val(entityObject.email);
+    if ('description' in entityObject) {
+        $("#description").text(entityObject.description);
     }
     if ('creationDate' in entityObject) {
         $("#date_created").val(entityObject.creationDate);
@@ -51,51 +52,28 @@ function fillFormFromResponseObject(entityObject) {
         $("#date_modified").val(entityObject.lastModificationDate);
     }
     
-    // uncheck all authors
-    $(".user-permissions").each((index, inputElem) => {
-        $(inputElem).prop("checked", false)
-    });
-    
-    if ('permissions' in entityObject) {
-        if (typeof entityObject.permissions === "object") {
-            console.log(Object.keys(entityObject.permissions));
-            Object.keys(entityObject.permissions).forEach((value) => {
-                $(`#user-permission-${value}`).prop("checked", true);
-            });
-        }
-    }
-    
     $("#create-button").prop("disabled", true);
     $("#clear-button").prop("disabled", false);
     $("#update-button").prop("disabled", false);
     $("#delete-button").prop("disabled", false);
 }
+
 function getFormDataAsUrlEncoded() {
     const formData = new FormData();
     formData.set("id", $("#id").val());
-    formData.set("username", $("#username").val());
-    formData.set("password", $("#password").val());
-    formData.set("email", $("#email").val());
-    const permissions = [];
-    $(".user-permissions").each((index, inputElem) => {
-        console.log(inputElem);
-        if ($(inputElem).prop("checked")) {
-            // console.log("checked");
-            permissions.push($(inputElem).val());
-        }
-    });
-    formData.set("permissions", permissions);
-    console.log(permissions);
+    formData.set("unique_permission", $("#unique_permission").val());
+    formData.set("permission_name", $("#permission_name").val());
+    formData.set("description", $("#description").val());
     console.log(Object.fromEntries(formData));
+    console.log($("#description").text());
     return (new URLSearchParams(formData)).toString();
 }
 
-// document.getElementById("create-button").onclick = getFormDataAsUrlEncoded;
-document.getElementById("create-button").onclick = createUser;
+document.getElementById("create-button").onclick = createPermission;
 
-function createUser() {
+function createPermission() {
     const options = {
-        "url": `${API_USER_URL}`,
+        "url": `${API_PERMISSION_URL}`,
         "method": "post",
         "data": getFormDataAsUrlEncoded(),
         "dataType": "json"
@@ -105,12 +83,12 @@ function createUser() {
      .done((data, status, jqXHR) => {
          console.log("Received data: ", data);
          
-         // Adding the new created user in select option.
-         if ('username' in data) {
-             const selector = document.getElementById("user-selector");
+         // Adding the new created permission in select option.
+         if ('uniquePermission' in data) {
+             const selector = document.getElementById("permission-selector");
              const newOptionElement = document.createElement("option");
              newOptionElement.value = data.id;
-             newOptionElement.innerHTML = `${data.username}`;
+             newOptionElement.innerHTML = `${data.uniquePermission}`;
              selector.appendChild(newOptionElement);
              selector.value = data.id;
          }
@@ -125,11 +103,11 @@ function createUser() {
      });
 }
 
-document.getElementById("delete-button").onclick = deleteUser;
+document.getElementById("delete-button").onclick = deletePermission;
 
-function deleteUser() {
+function deletePermission() {
     const options = {
-        "url": `${API_USER_URL}`,
+        "url": `${API_PERMISSION_URL}`,
         "method": "delete",
         "data": getFormDataAsUrlEncoded(),
         "dataType": "json"
@@ -140,7 +118,7 @@ function deleteUser() {
          console.log("Received data: ", data);
          const formIdValue = document.getElementById("id").value;
          if (formIdValue) {
-             const selector = /** @type {HTMLSelectElement} */ document.getElementById("user-selector");
+             const selector = /** @type {HTMLSelectElement} */ document.getElementById("permission-selector");
              // Note: voluntary non-identity equality check ( == instead of === ): disable warning
              // noinspection EqualityComparisonWithCoercionJS
              // The JavaScript spread operator (...) allows us to quickly copy all or part of an existing array or object into another array or object.
@@ -156,11 +134,11 @@ function deleteUser() {
      });
 }
 
-document.getElementById("update-button").onclick = updateUser;
+document.getElementById("update-button").onclick = updatePermission;
 
-function updateUser() {
+function updatePermission() {
     const options = {
-        "url": `${API_USER_URL}`,
+        "url": `${API_PERMISSION_URL}`,
         "method": "put",
         "data": getFormDataAsUrlEncoded(),
         "dataType": "json"
@@ -173,13 +151,13 @@ function updateUser() {
          
          // Replace the text in the selector with the updated values
          let formIdValue = document.getElementById("id").value;
-         if ('username' in data) {
-             const selector = /** @type {HTMLSelectElement} */ document.getElementById("user-selector");
+         if ('uniquePermission' in data) {
+             const selector = /** @type {HTMLSelectElement} */ document.getElementById("permission-selector");
              // Note: voluntary non-identity equality check ( == instead of === ): disable warning
              // noinspection EqualityComparisonWithCoercionJS
              // The JavaScript spread operator (...) allows us to quickly copy all or part of an existing array or object into another array or object.
              [...selector.options].filter(elem => elem.value == formIdValue).forEach(elem => {
-                 elem.innerHTML = `${data.username}`;
+                 elem.innerHTML = `${data.uniquePermission}`;
              });
          }
          fillFormFromResponseObject(data);
@@ -191,5 +169,6 @@ function updateUser() {
      });
 }
 
+
 // The on() method attaches one or more event handlers for the selected elements and child elements.
-$("#user-form").on("change", ":input", updateClearButtonState);
+$("#permission-formm").on("change", ":input", updateClearButtonState);

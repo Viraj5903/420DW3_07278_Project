@@ -74,9 +74,9 @@ class PermissionsService {
         
         try {
             
-            $user = PermissionDTO::fromValues($uniquePermission, $permissionName, $description);
+            $permission = PermissionDTO::fromValues($uniquePermission, $permissionName, $description);
             
-            return $this->permissionsDAO->create($user);
+            return $this->permissionsDAO->create($permission);
             
         } catch (Exception $exception) {
             throw new RuntimeException("Failure to create user [$uniquePermission, $permissionName, $description]." ,(int) $exception->getCode(), $exception);

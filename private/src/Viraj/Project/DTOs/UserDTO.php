@@ -104,8 +104,8 @@ class UserDTO {
             DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["created_at"])
         );
         
-        if (!empty($dbArray["last_modified_at"])) {
-            $object->setLastModificationDate(DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbArray["last_modified_at"]));
+        if (!empty($dbAssocArray["last_modified_at"])) {
+            $object->setLastModificationDate(DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["last_modified_at"]));
         }
         
         
@@ -395,7 +395,7 @@ class UserDTO {
      * @return array
      * @throws RuntimeException
      */
-    public function getPermissions(bool $forceReload = false) : array {
+    public function getPermissions(bool $forceReload = true) : array {
         try {
             if (empty($this->permissions) || $forceReload) {
                 $this->loadPermissions();
@@ -418,25 +418,7 @@ class UserDTO {
     }
     
     /**
-     * Function that convert UserDTO object into JSON.
-     *
-     * @return string
-     */
-    public function toJson() : string {
-        $array = [
-            "id" => $this->getId(),
-            "username" => $this->getUsername(),
-            "passwordHash" => $this->getPasswordHash(),
-            "email" => $this->getEmail(),
-            "creationDate" => $this->getCreationDate()->format(HTML_DATETIME_FORMAT),
-            "lastModificationDate" => $this->getLastModificationDate()->format(HTML_DATETIME_FORMAT),
-            // "deletionDate" => $this->getDeletionDate()->format(HTML_DATETIME_FORMAT),
-        ];
-        return json_encode($array, JSON_PRETTY_PRINT);
-    }
-    
-    /**
-     * Converting UserDTO object into array.
+     * Converting UserDTO object into JSON array.
      *
      * @return array
      */

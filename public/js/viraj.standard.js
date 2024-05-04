@@ -53,3 +53,18 @@ function displayResponseError(responseErrorObject) {
     // errorContainer.slideToggle().delay(1000).slideToggle();
     // errorContainer.slideToggle().delay(5000).slideToggle();
 }
+
+
+function updateClearButtonState() {
+    let dirtyElements = $("#user-form")
+        .find('*')
+        .filter(":input")
+        .filter((index, element) => {
+            return $(element).val();
+        });
+    if (dirtyElements.length > 0) {
+        $("#clear-button").prop("disabled", false);
+    } else {
+        $("#clear-button").prop("disabled", true);
+    }
+}

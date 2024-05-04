@@ -96,8 +96,8 @@ class UserGroupDTO {
             DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["created_at"])
         );
         
-        if (!empty($dbArray["last_modified_at"])) {
-            $object->setLastModificationDate(DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbArray["last_modified_at"]));
+        if (!empty($dbAssocArray["last_modified_at"])) {
+            $object->setLastModificationDate(DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["last_modified_at"]));
         }
         
         return $object;
@@ -120,10 +120,6 @@ class UserGroupDTO {
         if (empty($dbArray["group_name"])) {
             throw new ValidationException("Record array does not contain an [group_name] field. Check column names.", 500);
         }
-        
-//        if (array_key_exists("description", $dbArray)) {
-//            throw new ValidationException("Record array does not contain an [description] field. Check column names.", 500);
-//        }
         
         if (empty($dbArray["created_at"])) {
             throw new ValidationException("Record array does not contain an [created_at] field. Check column names.", 500);
@@ -273,13 +269,7 @@ class UserGroupDTO {
             }
             return false;
         }
-        // description is required
-        if (empty($this->description)) {
-            if ($optThrowExceptions) {
-                throw new ValidationException("UserGroupDTO is not valid for DB creation: description value not set.");
-            }
-            return false;
-        }
+        
         // creationDate must not be set
         if (!is_null($this->creationDate)) {
             if ($optThrowExceptions) {
@@ -378,23 +368,7 @@ class UserGroupDTO {
     }
     
     /**
-     * Function that convert UserGroupDTO object into JSON.
-     *
-     * @return string
-     */
-    public function toJson() : string {
-        $array = [
-            "id" => $this->getId(),
-            "groupName" => $this->getGroupName(),
-            "description" => $this->getDescription(),
-            "creationDate" => $this->getCreationDate()->format(HTML_DATETIME_FORMAT),
-            "lastModificationDate" => $this->getLastModificationDate()->format(HTML_DATETIME_FORMAT),
-        ];
-        return json_encode($array, JSON_PRETTY_PRINT);
-    }
-    
-    /**
-     * Converting UserGroupDTo object into array.
+     * Converting UserGroupDTo object into JSON array.
      *
      * @return array
      */
