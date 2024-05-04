@@ -1,36 +1,54 @@
 <?php
 declare(strict_types=1);
 
+/*
+ * 420DW3_07278_Project UserGroupDTO.php
+ *
+ * @author Viraj Patel
+ * @since 2024-03-28
+ */
+
 namespace Viraj\Project\DTOs;
 
 use DateTime;
-use Teacher\GivenCode\Abstracts\AbstractDTO;
+use Exception;
+use Teacher\GivenCode\Exceptions\RuntimeException;
 use Teacher\GivenCode\Exceptions\ValidationException;
+use Viraj\Project\DAOs\UserGroupsDAO;
 
 /**
  * UserGroup DTO-type class
  */
-class UserGroupDTO extends AbstractDTO {
+class UserGroupDTO {
+    
+    // Class constants
     /**
      * Database table name for this DTO.
      * @const
      */
     public const TABLE_NAME = "user_groups";
-    private const DESCRIPTION_MAX_LENGTH = 256;
+    public const GROUP_NAME_MAX_LENGTH = 64;
+    public const DESCRIPTION_MAX_LENGTH = 256;
+    
+    // Class properties
+    private int $id;
     private string $groupName;
-    private string $description;
-    private ?DateTime $creationDate;
-    private ?DateTime $lastModificationDate;
-    private ?DateTime $deletionDate;
+    private ?string $description;
+    private ?DateTime $creationDate = null;
+    private ?DateTime $lastModificationDate = null;
+    
+    /**
+     * Array of permission associated with this user_group.
+     * @var PermissionDTO[]
+     */
+    private array $permissions = [];
     
     /**
      * Empty public constructor function.
      * This empty constructor allows the internal creation of instances with or without the normally required 'id' and other
      * database-managed attributes.
      */
-    public function __construct() {
-        parent::__construct();
-    }
+    public function __construct() {}
     
     /**
      * Static constructor-like function to create instances of UserGroupDTO without an id or temporal management
@@ -65,6 +83,7 @@ class UserGroupDTO extends AbstractDTO {
      */
     public static function fromDbArray(array $dbAssocArray) : UserGroupDTO {
         
+        self::validateDbArray($dbAssocArray);
         $object = new UserGroupDTO();
         
         // Set the property values from the array parameter
@@ -74,32 +93,86 @@ class UserGroupDTO extends AbstractDTO {
         
         // conversion from DB-formatted datetime strings back into DateTime objects.
         $object->setCreationDate(
-            DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["created_date"])
-        );
-        $object->setLastModificationDate(
-            DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["last_modified_date"])
-        );
-        $object->setDeletionDate(
-            DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["deleted_date"])
+            DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["created_at"])
         );
         
-        // return the created instance
+        if (!empty($dbArray["last_modified_at"])) {
+            $object->setLastModificationDate(DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbArray["last_modified_at"]));
+        }
+        
         return $object;
+    }
+    
+    /**
+     * Validating the array which we retrieved from the database.
+     *
+     * @throws ValidationException If array doesn't require data/ properties or if invalid data retrieve from the
+     *                             database.
+     */
+    private static function validateDbArray(array $dbArray) : void {
+        
+        if (empty($dbArray["id"])) {
+            throw new ValidationException("Record array does not contain an [id] field. Check column names.", 500);
+        }
+        if (!is_numeric($dbArray["id"])) {
+            throw new ValidationException("Record array [id] field is not numeric. Check column types.", 500);
+        }
+        if (empty($dbArray["group_name"])) {
+            throw new ValidationException("Record array does not contain an [group_name] field. Check column names.", 500);
+        }
+        
+//        if (array_key_exists("description", $dbArray)) {
+//            throw new ValidationException("Record array does not contain an [description] field. Check column names.", 500);
+//        }
+        
+        if (empty($dbArray["created_at"])) {
+            throw new ValidationException("Record array does not contain an [created_at] field. Check column names.", 500);
+        }
+        if (DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbArray["created_at"]) === false) {
+            throw new ValidationException("Failed to parse [created_at] field as DateTime. Check column types.", 500);
+        }
+        if (!empty($dbArray["last_modified_at"]) &&
+            (DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbArray["last_modified_at"]) === false)
+        ) {
+            throw new ValidationException("Failed to parse [last_modified_at] field as DateTime. Check column types.", 500);
+        }
     }
     
     /**
      * Get the Table name.
      *
-     * @return string
+     * @return string The name of the database table associated with this DTO.
      */
     public function getDatabaseTableName() : string {
         return self::TABLE_NAME;
     }
     
     /**
+     * Getter for <code>Id</code>
+     *
+     * @return int
+     */
+    public function getId() : int {
+        return $this->id;
+    }
+    
+    /**
+     * Setter for <code>Id</code>
+     *
+     * @param int $id
+     * @throws ValidationException If the id is lower than 1.
+     */
+    public function setId(int $id) : void {
+        if ($id < 1) {
+            throw new ValidationException("Id value cannot be inferior to 1.");
+        }
+        $this->id = $id;
+    }
+    
+    /**
      * Getter for <code>GroupName</code>.
      *
-     * @return string
+     * @return string The name of the user group.
      */
     public function getGroupName() : string {
         return $this->groupName;
@@ -108,29 +181,34 @@ class UserGroupDTO extends AbstractDTO {
     /**
      *  Setter for <code>GroupName</code>.
      *
-     * @param string $groupName
+     * @param string $groupName The name of the user group to set.
+     * @throws ValidationException If the group name exceeds the maximum length.
      */
     public function setGroupName(string $groupName) : void {
+        if (mb_strlen($groupName) > self::GROUP_NAME_MAX_LENGTH) {
+            throw new ValidationException("Group name value must not be longer than " . self::GROUP_NAME_MAX_LENGTH .
+                                          " characters.");
+        }
         $this->groupName = $groupName;
     }
     
     /**
      * Getter for <code>Description</code>.
      *
-     * @return string
+     * @return string|null The description of the user group.
      */
-    public function getDescription() : string {
+    public function getDescription() : ?string {
         return $this->description;
     }
     
     /**
      *  Setter for <code>Description</code>.
      *
-     * @param string $description
-     * @throws ValidationException
+     * @param string|null $description The description to set.
+     * @throws ValidationException If the description exceeds the maximum length.
      */
-    public function setDescription(string $description) : void {
-        if (mb_strlen($description) > self::DESCRIPTION_MAX_LENGTH) {
+    public function setDescription(?string $description) : void {
+        if (!empty($description) && (mb_strlen($description) > self::DESCRIPTION_MAX_LENGTH)) {
             throw new ValidationException("Description value must not be longer than " . self::DESCRIPTION_MAX_LENGTH .
                                           " characters.");
         }
@@ -140,7 +218,7 @@ class UserGroupDTO extends AbstractDTO {
     /**
      * Getter for <code>CreationDate</code>.
      *
-     * @return DateTime|null
+     * @return DateTime|null The creation date of the user group or null if not set.
      */
     public function getCreationDate() : ?DateTime {
         return $this->creationDate;
@@ -149,7 +227,7 @@ class UserGroupDTO extends AbstractDTO {
     /**
      *  Setter for <code>CreationDate</code>.
      *
-     * @param DateTime|null $creationDate
+     * @param DateTime|null $creationDate The creation date to set.
      */
     public function setCreationDate(?DateTime $creationDate) : void {
         $this->creationDate = $creationDate;
@@ -158,7 +236,7 @@ class UserGroupDTO extends AbstractDTO {
     /**
      * Getter for <code>LastModificationDate</code>.
      *
-     * @return DateTime|null
+     * @return DateTime|null The last modification date of the user group or null if not set.
      */
     public function getLastModificationDate() : ?DateTime {
         return $this->lastModificationDate;
@@ -167,28 +245,10 @@ class UserGroupDTO extends AbstractDTO {
     /**
      * Setter for <code>LastModificationDate</code>.
      *
-     * @param DateTime|null $lastModificationDate
+     * @param DateTime|null $lastModificationDate The last modification date to set.
      */
     public function setLastModificationDate(?DateTime $lastModificationDate) : void {
         $this->lastModificationDate = $lastModificationDate;
-    }
-    
-    /**
-     * Getter for <code>DeletionDate</code>.
-     *
-     * @return DateTime|null
-     */
-    public function getDeletionDate() : ?DateTime {
-        return $this->deletionDate;
-    }
-    
-    /**
-     * Setter for <code>DeletionDate</code>.
-     *
-     * @param DateTime|null $deletionDate
-     */
-    public function setDeletionDate(?DateTime $deletionDate) : void {
-        $this->deletionDate = $deletionDate;
     }
     
     /**
@@ -234,13 +294,7 @@ class UserGroupDTO extends AbstractDTO {
             }
             return false;
         }
-        // deletionDate must not be set
-        if (!is_null($this->deletionDate)) {
-            if ($optThrowExceptions) {
-                throw new ValidationException("UserGroupDTO is not valid for DB creation: deletionDateTime value already set.");
-            }
-            return false;
-        }
+        
         return true;
     }
     
@@ -255,21 +309,21 @@ class UserGroupDTO extends AbstractDTO {
         // ID is required
         if (empty($this->id)) {
             if ($optThrowExceptions) {
-                throw new ValidationException("UserGroupDTO is not valid for DB creation: ID value is not set.");
+                throw new ValidationException("UserGroupDTO is not valid for DB updation: ID value is not set.");
             }
             return false;
         }
         // groupName is required
         if (empty($this->groupName)) {
             if ($optThrowExceptions) {
-                throw new ValidationException("UserGroupDTO is not valid for DB creation: groupName value not set.");
+                throw new ValidationException("UserGroupDTO is not valid for DB updation: groupName value not set.");
             }
             return false;
         }
         // description is required
         if (empty($this->description)) {
             if ($optThrowExceptions) {
-                throw new ValidationException("UserGroupDTO is not valid for DB creation: description value not set.");
+                throw new ValidationException("UserGroupDTO is not valid for DB updation: description value not set.");
             }
             return false;
         }
@@ -287,11 +341,40 @@ class UserGroupDTO extends AbstractDTO {
         // ID is required
         if (empty($this->id)) {
             if ($optThrowExceptions) {
-                throw new ValidationException("UserGroupDTO is not valid for DB creation: ID value is not set.");
+                throw new ValidationException("UserGroupDTO is not valid for DB deletion: ID value is not set.");
             }
             return false;
         }
         return true;
+    }
+    
+    /**
+     *
+     *
+     * @param bool $forceReload [default=false] If <code>true</code>, forces the reload of the permission records from the database.
+     * @return array
+     * @throws RuntimeException
+     */
+    public function getPermissions(bool $forceReload = false) : array {
+        try {
+            if (empty($this->permissions) || $forceReload) {
+                $this->loadPermissions();
+            }
+        } catch (Exception $exception) {
+            throw new RuntimeException("Failed to load permission entity records for user group id# [$this->id].", $exception->getCode(), $exception);
+        }
+        
+        return $this->permissions;
+    }
+    
+    /**
+     * @return void
+     * @throws RuntimeException
+     * @throws ValidationException
+     */
+    public function loadPermissions() : void {
+        $user_group_dao = new UserGroupsDAO();
+        $this->permissions = $user_group_dao->getPermissionsByUserGroup($this);
     }
     
     /**
@@ -306,8 +389,32 @@ class UserGroupDTO extends AbstractDTO {
             "description" => $this->getDescription(),
             "creationDate" => $this->getCreationDate()->format(HTML_DATETIME_FORMAT),
             "lastModificationDate" => $this->getLastModificationDate()->format(HTML_DATETIME_FORMAT),
-            "deletionDate" => $this->getDeletionDate()->format(HTML_DATETIME_FORMAT),
         ];
         return json_encode($array, JSON_PRETTY_PRINT);
+    }
+    
+    /**
+     * Converting UserGroupDTo object into array.
+     *
+     * @return array
+     */
+    public function toArray() : array {
+        $array = [
+            "id" => $this->getId(),
+            "groupName" => $this->getGroupName(),
+            "description" => $this->getDescription(),
+            "creationDate" => $this->getCreationDate()?->format(HTML_DATETIME_FORMAT),
+            "lastModificationDate" => $this->getLastModificationDate()?->format(HTML_DATETIME_FORMAT),
+            "permissions" => []
+        ];
+        
+        // Note: I'm not using getPermissions() here in order not to trigger the loading of the permission.
+        // Include them in the array only if loaded previously.
+        // otherwise infinite loop user_group loads permissions loads user_groups loads permissions loads user_groups...
+        foreach ($this->permissions as $permission) {
+            $array["permissions"][$permission->getId()] = $permission->toArray();
+        }
+        
+        return $array;
     }
 }

@@ -1,40 +1,57 @@
 <?php
 declare(strict_types=1);
 
+/*
+ * 420DW3_07278_Project UserDTO.php
+ *
+ * @author Viraj Patel
+ * @since 2024-03-28
+ */
+
 namespace Viraj\Project\DTOs;
 
 use DateTime;
-use Teacher\GivenCode\Abstracts\AbstractDTO;
+use Exception;
 use Teacher\GivenCode\Exceptions\ValidationException;
+use Teacher\GivenCode\Exceptions\RuntimeException;
+use Viraj\Project\DAOs\UsersDAO;
 
 /**
  * User DTO-type class
  */
-class UserDTO extends AbstractDTO {
+class UserDTO {
+    
+    // Class constants.
     
     /**
      * Database table name for this DTO.
      * @const
      */
     public const TABLE_NAME = "users";
-    private const USERNAME_MAX_LENGTH = 64;
-    private const PASSWORD_HASH_MAX_LENGTH = 256;
+    public const USERNAME_MAX_LENGTH = 64;
+    public const PASSWORD_HASH_MAX_LENGTH = 72;
+    public const EMAIL_MAX_LENGTH = 256;
     
+    // Class Properties
+    private int $id;
     private string $username;
     private string $passwordHash;
     private string $email;
-    private ?DateTime $creationDate;
-    private ?DateTime $lastModificationDate;
-    private ?DateTime $deletionDate;
+    private ?DateTime $creationDate = null;
+    private ?DateTime $lastModificationDate = null;
+    
+    /**
+     * Array of permission associated with this user.
+     * @var PermissionDTO[]
+     */
+    private array $permissions = [];
     
     /**
      * Empty public constructor function.
-     * This empty constructor allows the internal creation of instances with or without the normally required 'id' and other
-     * database-managed attributes.
+     * This empty constructor allows the internal creation of instances with or without the normally required 'id' and
+     * other database-managed attributes.
      */
-    public function __construct() {
-        parent::__construct();
-    }
+    public function __construct() {}
     
     /**
      * Static constructor-like function to create instances of UserDTO without an id or temporal management
@@ -48,6 +65,7 @@ class UserDTO extends AbstractDTO {
      * @throws ValidationException ValidationException is thrown when setting the passed arguments as property values.
      */
     public static function fromValues(string $username, string $passwordHash, string $email) : UserDTO {
+        
         $object = new UserDTO();
         
         // Set the property values from the parameters.
@@ -70,6 +88,9 @@ class UserDTO extends AbstractDTO {
      * @throws ValidationException ValidationException is thrown when setting the passed arguments as property values.
      */
     public static function fromDbArray(array $dbAssocArray) : UserDTO {
+        
+        self::validateDbArray($dbAssocArray);
+        
         $object = new UserDTO();
         
         // Set the property values from the array parameter
@@ -80,32 +101,86 @@ class UserDTO extends AbstractDTO {
         
         // conversion from DB-formatted datetime strings back into DateTime objects.
         $object->setCreationDate(
-            DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["created_date"])
+            DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["created_at"])
         );
-        $object->setLastModificationDate(
-            DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["last_modified_date"])
-        );
-        $object->setDeletionDate(
-            DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["deleted_date"])
-        );
+        
+        if (!empty($dbArray["last_modified_at"])) {
+            $object->setLastModificationDate(DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbArray["last_modified_at"]));
+        }
+        
         
         // return the created instance
         return $object;
     }
     
     /**
+     * Validating the array which we retrieved from the database.
+     *
+     * @throws ValidationException If array doesn't require data/ properties or if invalid data retrieve from the
+     *                             database.
+     */
+    private static function validateDbArray(array $dbArray) : void {
+        
+        if (empty($dbArray["id"])) {
+            throw new ValidationException("Record array does not contain an [id] field. Check column names.", 500);
+        }
+        if (!is_numeric($dbArray["id"])) {
+            throw new ValidationException("Record array [id] field is not numeric. Check column types.", 500);
+        }
+        if (empty($dbArray["username"])) {
+            throw new ValidationException("Record array does not contain an [username] field. Check column names.", 500);
+        }
+        if (empty($dbArray["password_hash"])) {
+            throw new ValidationException("Record array does not contain an [password_hash] field. Check column names.", 500);
+        }
+        if (empty($dbArray["created_at"])) {
+            throw new ValidationException("Record array does not contain an [created_at] field. Check column names.", 500);
+        }
+        if (DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbArray["created_at"]) === false) {
+            throw new ValidationException("Failed to parse [created_at] field as DateTime. Check column types.", 500);
+        }
+        if (!empty($dbArray["last_modified_at"]) &&
+            (DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbArray["last_modified_at"]) === false)
+        ) {
+            throw new ValidationException("Failed to parse [last_modified_at] field as DateTime. Check column types.", 500);
+        }
+    }
+    
+    /**
      * Get the Table name.
      *
-     * @return string
+     * @return string The name of the database table associated with this DTO.
      */
     public function getDatabaseTableName() : string {
         return self::TABLE_NAME;
     }
     
     /**
+     * Getter for <code>Id</code>
+     *
+     * @return int
+     */
+    public function getId() : int {
+        return $this->id;
+    }
+    
+    /**
+     * Setter for <code>Id</code>
+     *
+     * @param int $id
+     * @throws ValidationException If the id is lower than 1.
+     */
+    public function setId(int $id) : void {
+        if ($id < 1) {
+            throw new ValidationException("Id value cannot be inferior to 1.");
+        }
+        $this->id = $id;
+    }
+    
+    /**
      *  Getter for <code>Username</code>.
      *
-     * @return string
+     * @return string The username of the user.
      */
     public function getUsername() : string {
         return $this->username;
@@ -114,8 +189,8 @@ class UserDTO extends AbstractDTO {
     /**
      * Setter for <code>Username</code>.
      *
-     * @param string $username
-     * @throws ValidationException
+     * @param string $username The username to set.
+     * @throws ValidationException If the username exceeds the maximum length.
      */
     public function setUsername(string $username) : void {
         if (mb_strlen($username) > self::USERNAME_MAX_LENGTH) {
@@ -127,7 +202,7 @@ class UserDTO extends AbstractDTO {
     /**
      * Getter for <code>PasswordHash</code>.
      *
-     * @return string
+     * @return string The hashed password of the user.
      */
     public function getPasswordHash() : string {
         return $this->passwordHash;
@@ -136,13 +211,12 @@ class UserDTO extends AbstractDTO {
     /**
      * Setter for <code>PasswordHash</code>.
      *
-     * @param string $passwordHash
-     * @throws ValidationException
+     * @param string $passwordHash The hashed password to set.
+     * @throws ValidationException If the password hash exceeds the maximum length.
      */
     public function setPasswordHash(string $passwordHash) : void {
         if (mb_strlen($passwordHash) > self::PASSWORD_HASH_MAX_LENGTH) {
-            throw new ValidationException("Password hash length must not be longer than " .
-                                          self::PASSWORD_HASH_MAX_LENGTH . ".");
+            throw new ValidationException("Password hash length must not be longer than " . self::PASSWORD_HASH_MAX_LENGTH . ".");
         }
         $this->passwordHash = $passwordHash;
     }
@@ -150,7 +224,7 @@ class UserDTO extends AbstractDTO {
     /**
      * Getter for <code>Email</code>.
      *
-     * @return string
+     * @return string The email address of the user.
      */
     public function getEmail() : string {
         return $this->email;
@@ -159,16 +233,20 @@ class UserDTO extends AbstractDTO {
     /**
      * Setter for <code>Email</code>.
      *
-     * @param string $email
+     * @param string $email The email address to set.
+     * @throws ValidationException If the email exceeds the maximum length.
      */
     public function setEmail(string $email) : void {
+        if (mb_strlen($email) > self::EMAIL_MAX_LENGTH) {
+            throw new ValidationException("Email hash length must not be longer than " . self::PASSWORD_HASH_MAX_LENGTH . ".");
+        }
         $this->email = $email;
     }
     
     /**
      * Getter for <code>CreationDate</code>.
      *
-     * @return DateTime|null
+     * @return DateTime|null The creation date of the user or null if not set.
      */
     public function getCreationDate() : ?DateTime {
         return $this->creationDate;
@@ -177,7 +255,7 @@ class UserDTO extends AbstractDTO {
     /**
      * Setter for <code>CreationDate</code>.
      *
-     * @param DateTime|null $creationDate
+     * @param DateTime|null $creationDate The creation date to set.
      */
     public function setCreationDate(?DateTime $creationDate) : void {
         $this->creationDate = $creationDate;
@@ -186,7 +264,7 @@ class UserDTO extends AbstractDTO {
     /**
      * Getter for <code>LastModificationDate</code>.
      *
-     * @return DateTime|null
+     * @return DateTime|null The last modification date of the user or null if not set.
      */
     public function getLastModificationDate() : ?DateTime {
         return $this->lastModificationDate;
@@ -195,28 +273,10 @@ class UserDTO extends AbstractDTO {
     /**
      * Setter for <code>LastModificationDate</code>.
      *
-     * @param DateTime|null $lastModificationDate
+     * @param DateTime|null $lastModificationDate The last modification date to set.
      */
     public function setLastModificationDate(?DateTime $lastModificationDate) : void {
         $this->lastModificationDate = $lastModificationDate;
-    }
-    
-    /**
-     * Getter for <code>DeletionDate</code>.
-     *
-     * @return DateTime|null
-     */
-    public function getDeletionDate() : ?DateTime {
-        return $this->deletionDate;
-    }
-    
-    /**
-     * Setter for <code>DeletionDate</code>.
-     *
-     * @param DateTime|null $deletionDate
-     */
-    public function setDeletionDate(?DateTime $deletionDate) : void {
-        $this->deletionDate = $deletionDate;
     }
     
     /**
@@ -269,13 +329,7 @@ class UserDTO extends AbstractDTO {
             }
             return false;
         }
-        // deletionDate must not be set
-        if (!is_null($this->deletionDate)) {
-            if ($optThrowExceptions) {
-                throw new ValidationException("UserDTO is not valid for DB creation: deletionDateTime value already set.");
-            }
-            return false;
-        }
+        
         return true;
     }
     
@@ -290,28 +344,28 @@ class UserDTO extends AbstractDTO {
         // ID is required
         if (empty($this->id)) {
             if ($optThrowExceptions) {
-                throw new ValidationException("UserDTO is not valid for DB creation: ID value is not set.");
+                throw new ValidationException("UserDTO is not valid for DB updation: ID value is not set.");
             }
             return false;
         }
         // username is required
         if (empty($this->username)) {
             if ($optThrowExceptions) {
-                throw new ValidationException("UserDTO is not valid for DB creation: dayOfTheWeek value not set.");
+                throw new ValidationException("UserDTO is not valid for DB updation: dayOfTheWeek value not set.");
             }
             return false;
         }
         // passwordHash is required
         if (empty($this->passwordHash)) {
             if ($optThrowExceptions) {
-                throw new ValidationException("UserDTO is not valid for DB creation: passwordHash value not set.");
+                throw new ValidationException("UserDTO is not valid for DB updation: passwordHash value not set.");
             }
             return false;
         }
         // email is required
         if (empty($this->email)) {
             if ($optThrowExceptions) {
-                throw new ValidationException("UserDTO is not valid for DB creation: email value not set.");
+                throw new ValidationException("UserDTO is not valid for DB updation: email value not set.");
             }
             return false;
         }
@@ -329,11 +383,38 @@ class UserDTO extends AbstractDTO {
         // ID is required
         if (empty($this->id)) {
             if ($optThrowExceptions) {
-                throw new ValidationException("UserDTO is not valid for DB creation: ID value is not set.");
+                throw new ValidationException("UserDTO is not valid for DB deletion: ID value is not set.");
             }
             return false;
         }
         return true;
+    }
+    
+    /**
+     * @param bool $forceReload [default=false] If <code>true</code>, forces the reload of the permission records from the database.
+     * @return array
+     * @throws RuntimeException
+     */
+    public function getPermissions(bool $forceReload = false) : array {
+        try {
+            if (empty($this->permissions) || $forceReload) {
+                $this->loadPermissions();
+            }
+        } catch (Exception $exception) {
+            throw new RuntimeException("Failed to load permission entity records for user id# [$this->id].", $exception->getCode(), $exception);
+        }
+        
+        return $this->permissions;
+    }
+    
+    /**
+     * @return void
+     * @throws RuntimeException
+     * @throws ValidationException
+     */
+    public function loadPermissions() : void {
+        $users_dao = new UsersDAO();
+        $this->permissions = $users_dao->getPermissionsByUser($this);
     }
     
     /**
@@ -349,8 +430,34 @@ class UserDTO extends AbstractDTO {
             "email" => $this->getEmail(),
             "creationDate" => $this->getCreationDate()->format(HTML_DATETIME_FORMAT),
             "lastModificationDate" => $this->getLastModificationDate()->format(HTML_DATETIME_FORMAT),
-            "deletionDate" => $this->getDeletionDate()->format(HTML_DATETIME_FORMAT),
+            // "deletionDate" => $this->getDeletionDate()->format(HTML_DATETIME_FORMAT),
         ];
         return json_encode($array, JSON_PRETTY_PRINT);
+    }
+    
+    /**
+     * Converting UserDTO object into array.
+     *
+     * @return array
+     */
+    public function toArray() : array {
+        $array = [
+            "id" => $this->getId(),
+            "username" => $this->getUsername(),
+            "passwordHash" => $this->getPasswordHash(),
+            "email" => $this->getEmail(),
+            "creationDate" => $this->getCreationDate()?->format(HTML_DATETIME_FORMAT),
+            "lastModificationDate" => $this->getLastModificationDate()?->format(HTML_DATETIME_FORMAT),
+            "permissions" => []
+        ];
+        
+        // Note: I'm not using getPermissions() here in order not to trigger the loading of the permission.
+        // Include them in the array only if loaded previously.
+        // otherwise infinite loop user loads permissions loads users loads permissions loads users...
+        foreach ($this->permissions as $permission) {
+            $array["permissions"][$permission->getId()] = $permission->toArray();
+        }
+        
+        return $array;
     }
 }
