@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Viraj\Project\Controllers;
 
-use JsonException;
 use Teacher\GivenCode\Abstracts\AbstractController;
 use Teacher\GivenCode\Exceptions\RequestException;
 use Teacher\GivenCode\Exceptions\RuntimeException;
@@ -82,11 +81,6 @@ class UsergroupsController extends AbstractController {
         if (empty($_REQUEST["group_name"])) { // Check if the "group_name" parameter is missing in the request.
             throw new RequestException("Bad request: required parameter [group_name] not found in the request.", 400);
         }
-        /*if (empty($_REQUEST["description"])) { // Check if the "description" parameter is missing in the request.
-            throw new RequestException("Bad request: required parameter [description] not found in the request.", 400);
-        }*/
-        
-        // NOTE: no need for validation of the string lengths here, as that is done by the setter methods of the UserGroupDTO class used when creating a UserGroupDTO instance in the create method of UserGroupsService.
         
         $permissions = [];
         
@@ -130,13 +124,6 @@ class UsergroupsController extends AbstractController {
         if (empty($_REQUEST["group_name"])) { // Check if the "group_name" parameter is missing in the request.
             throw new RequestException("Bad request: required parameter [group_name] not found in the request.", 400);
         }
-        
-        /*if (empty($_REQUEST["description"])) { // Check if the "description" parameter is missing in the request.
-            throw new RequestException("Bad request: required parameter [description] not found in the request.", 400);
-        }*/
-        
-        // NOTE: no need for validation of the string lengths here, as that is done by the setter methods of the
-        // UserGroupDTO class used when creating an UserGroupDTO instance in the creation method of UserGroupsService.
         
         // Update existing permission using provided data.
         $int_id = (int) $_REQUEST["id"]; // Convert the "id" parameter to an integer.

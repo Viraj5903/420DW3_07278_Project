@@ -25,9 +25,24 @@ class PermissionDTO {
      * @const
      */
     public const TABLE_NAME = "permissions";
-    public const DESCRIPTION_MAX_LENGTH = 256;
+    
+    /**
+     * Permission name maximum length.
+     * @const
+     */
     public const PERMISSION_NAME_MAX_LENGTH = 64;
+    
+    /**
+     * Unique permission maximum length.
+     * @const
+     */
     public const UNIQUE_PERMISSION_MAX_LENGTH = 64;
+    
+    /**
+     * Description maximum length.
+     * @const
+     */
+    public const DESCRIPTION_MAX_LENGTH = 256;
     
     // Class properties
     private int $id;
@@ -38,9 +53,7 @@ class PermissionDTO {
     private ?DateTime $lastModificationDate = null;
     
     /**
-     * Empty public constructor function.
-     * This empty constructor allows the internal creation of instances with or without the normally required 'id' and
-     * other database-managed attributes.
+     * Constructor
      */
     public function __construct() {}
     
@@ -77,7 +90,7 @@ class PermissionDTO {
      * @param array $dbAssocArray The associative array of a fetched record of an PermissionDTO entity from the
      *                            database.
      * @return PermissionDTO The created instance of PermissionDTO.
-     * @throws ValidationException ValidationException is thrown when setting the passed arguments as property values.
+     * @throws ValidationException If an error occurs during setting the object properties.
      */
     public static function fromDbArray(array $dbAssocArray) : PermissionDTO {
         
@@ -107,8 +120,7 @@ class PermissionDTO {
     /**
      * Validating the array which we retrieved from the database.
      *
-     * @throws ValidationException If array doesn't require data/ properties or if invalid data retrieve from the
-     *                             database.
+     * @throws ValidationException If array doesn't require data/ properties or if invalid data retrieve from the database.
      */
     private static function validateDbArray(array $dbArray) : void {
         
@@ -124,9 +136,6 @@ class PermissionDTO {
         if (empty($dbArray["permission_name"])) {
             throw new ValidationException("Record array does not contain an [permission_name] field. Check column names.", 500);
         }
-//        if (array_key_exists("description", $dbArray)) {
-//            throw new ValidationException("Record array does not contain an [description] field. Check column names.", 500);
-//        }
         
         if (empty($dbArray["created_at"])) {
             throw new ValidationException("Record array does not contain an [created_at] field. Check column names.", 500);
@@ -303,13 +312,7 @@ class PermissionDTO {
             }
             return false;
         }
-        // description is required
-        /*if (empty($this->description)) {
-            if ($optThrowExceptions) {
-                throw new ValidationException("PermissionDTO is not valid for DB creation: description value not set.");
-            }
-            return false;
-        }*/
+        
         // creationDate must not be set
         if (!is_null($this->creationDate)) {
             if ($optThrowExceptions) {
@@ -357,13 +360,7 @@ class PermissionDTO {
             }
             return false;
         }
-        // description is required
-        /*if (empty($this->description)) {
-            if ($optThrowExceptions) {
-                throw new ValidationException("PermissionDTO is not valid for DB updation: description value not set.");
-            }
-            return false;
-        }*/
+        
         return true;
     }
     
@@ -400,5 +397,4 @@ class PermissionDTO {
             "lastModificationDate" => $this->getLastModificationDate()?->format(HTML_DATETIME_FORMAT),
         ];
     }
-    
 }

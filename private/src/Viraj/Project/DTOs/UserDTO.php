@@ -12,8 +12,8 @@ namespace Viraj\Project\DTOs;
 
 use DateTime;
 use Exception;
-use Teacher\GivenCode\Exceptions\ValidationException;
 use Teacher\GivenCode\Exceptions\RuntimeException;
+use Teacher\GivenCode\Exceptions\ValidationException;
 use Viraj\Project\DAOs\UsersDAO;
 
 /**
@@ -28,8 +28,23 @@ class UserDTO {
      * @const
      */
     public const TABLE_NAME = "users";
+    
+    /**
+     * Username maximum length.
+     * @const
+     */
     public const USERNAME_MAX_LENGTH = 64;
+    
+    /**
+     * Password maximum length.
+     * @const
+     */
     public const PASSWORD_HASH_MAX_LENGTH = 72;
+    
+    /**
+     * Email maximum length.
+     * @const
+     */
     public const EMAIL_MAX_LENGTH = 256;
     
     // Class Properties
@@ -47,9 +62,7 @@ class UserDTO {
     private array $permissions = [];
     
     /**
-     * Empty public constructor function.
-     * This empty constructor allows the internal creation of instances with or without the normally required 'id' and
-     * other database-managed attributes.
+     * Constructor
      */
     public function __construct() {}
     
@@ -85,7 +98,7 @@ class UserDTO {
      * @static
      * @param array $dbAssocArray The associative array of a fetched record of an UserDTO entity from the database.
      * @return UserDTO The created instance of UserGroupDTO.
-     * @throws ValidationException ValidationException is thrown when setting the passed arguments as property values.
+     * @throws ValidationException If an error occurs during setting the object properties.
      */
     public static function fromDbArray(array $dbAssocArray) : UserDTO {
         
@@ -108,7 +121,6 @@ class UserDTO {
             $object->setLastModificationDate(DateTime::createFromFormat(DB_DATETIME_FORMAT, $dbAssocArray["last_modified_at"]));
         }
         
-        
         // return the created instance
         return $object;
     }
@@ -116,8 +128,7 @@ class UserDTO {
     /**
      * Validating the array which we retrieved from the database.
      *
-     * @throws ValidationException If array doesn't require data/ properties or if invalid data retrieve from the
-     *                             database.
+     * @throws ValidationException If array doesn't require data/ properties or if invalid data retrieve from the database.
      */
     private static function validateDbArray(array $dbArray) : void {
         
@@ -391,16 +402,20 @@ class UserDTO {
     }
     
     /**
-     * @param bool $forceReload [default=false] If <code>true</code>, forces the reload of the permission records from the database.
-     * @return array
-     * @throws RuntimeException
+     * Retrieves permissions associated with the user.
+     *
+     * @param bool $forceReload [Optional] If set to <code>true</code>, forces the reload of the permission records from the database. Defaults to <code>true</code>.
+     * @return array An array of PermissionDTO objects representing the permissions associated with the user.
+     * @throws RuntimeException If there is an issue with loading the permission records.
      */
     public function getPermissions(bool $forceReload = true) : array {
         try {
+            // If the permissions array is empty or forceReload is set to true, reload permissions from the database.
             if (empty($this->permissions) || $forceReload) {
                 $this->loadPermissions();
             }
         } catch (Exception $exception) {
+            // If an exception occurs during the loading of permissions, throw a RuntimeException.
             throw new RuntimeException("Failed to load permission entity records for user id# [$this->id].", $exception->getCode(), $exception);
         }
         
@@ -408,9 +423,11 @@ class UserDTO {
     }
     
     /**
+     * Loads permissions associated with the user from the database.
+     *
      * @return void
-     * @throws RuntimeException
-     * @throws ValidationException
+     * @throws RuntimeException If there is an issue with loading the permissions.
+     * @throws ValidationException If there is an issue with the validation of the retrieved data.
      */
     public function loadPermissions() : void {
         $users_dao = new UsersDAO();
@@ -433,9 +450,6 @@ class UserDTO {
             "permissions" => []
         ];
         
-        // Note: I'm not using getPermissions() here in order not to trigger the loading of the permission.
-        // Include them in the array only if loaded previously.
-        // otherwise infinite loop user loads permissions loads users loads permissions loads users...
         foreach ($this->permissions as $permission) {
             $array["permissions"][$permission->getId()] = $permission->toArray();
         }

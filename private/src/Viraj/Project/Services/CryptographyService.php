@@ -16,6 +16,7 @@ use Teacher\GivenCode\Exceptions\ValidationException;
  * Service class for the hashing and validation of user passwords.
  */
 class CryptographyService {
+    
     private const ALGORITHM = PASSWORD_BCRYPT;
     private const BLOWFISH_MAX_PW_LENGTH = 72;
     
@@ -37,7 +38,6 @@ class CryptographyService {
         }
         return password_hash($cleanPassword, self::ALGORITHM);
     }
-    
     
     /**
      * Compares an unencrypted password to a hashed password value.

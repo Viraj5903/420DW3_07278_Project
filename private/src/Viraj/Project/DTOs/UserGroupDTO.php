@@ -27,7 +27,17 @@ class UserGroupDTO {
      * @const
      */
     public const TABLE_NAME = "user_groups";
+    
+    /**
+     * Group name maximum length.
+     * @const
+     */
     public const GROUP_NAME_MAX_LENGTH = 64;
+    
+    /**
+     * Description maximum length.
+     * @const
+     */
     public const DESCRIPTION_MAX_LENGTH = 256;
     
     // Class properties
@@ -44,9 +54,7 @@ class UserGroupDTO {
     private array $permissions = [];
     
     /**
-     * Empty public constructor function.
-     * This empty constructor allows the internal creation of instances with or without the normally required 'id' and other
-     * database-managed attributes.
+     * Constructor
      */
     public function __construct() {}
     
@@ -58,7 +66,7 @@ class UserGroupDTO {
      * @param string $groupName   The initial value for the groupName property.
      * @param string $description The initial value for the description property.
      * @return UserGroupDTO The created instance of UserGroupDTO.
-     * @throws ValidationException ValidationException is thrown when setting the passed arguments as property values.
+     * @throws ValidationException If an error occurs during setting the object properties.
      */
     public static function fromValues(string $groupName, string $description) : UserGroupDTO {
         $object = new UserGroupDTO();
@@ -106,8 +114,7 @@ class UserGroupDTO {
     /**
      * Validating the array which we retrieved from the database.
      *
-     * @throws ValidationException If array doesn't require data/ properties or if invalid data retrieve from the
-     *                             database.
+     * @throws ValidationException If array doesn't require data/ properties or if invalid data retrieve from the database.
      */
     private static function validateDbArray(array $dbArray) : void {
         
@@ -339,18 +346,20 @@ class UserGroupDTO {
     }
     
     /**
+     * Retrieves permissions associated with the user group.
      *
-     *
-     * @param bool $forceReload [default=false] If <code>true</code>, forces the reload of the permission records from the database.
-     * @return array
-     * @throws RuntimeException
+     * @param bool $forceReload [Optional] If set to <code>true</code>, forces the reload of the permission records from the database. Defaults to <code>false</code>.
+     * @return array An array of PermissionDTO objects representing the permissions associated with the user group.
+     * @throws RuntimeException If there is an issue with loading the permission records.
      */
     public function getPermissions(bool $forceReload = false) : array {
         try {
+            // If the permissions array is empty or forceReload is set to true, reload permissions from the database.
             if (empty($this->permissions) || $forceReload) {
                 $this->loadPermissions();
             }
         } catch (Exception $exception) {
+            // If an exception occurs during the loading of permissions, throw a RuntimeException.
             throw new RuntimeException("Failed to load permission entity records for user group id# [$this->id].", $exception->getCode(), $exception);
         }
         
@@ -358,9 +367,11 @@ class UserGroupDTO {
     }
     
     /**
+     * Loads permissions associated with the user group from the database.
+     *
      * @return void
-     * @throws RuntimeException
-     * @throws ValidationException
+     * @throws RuntimeException If there is an issue with loading the permissions.
+     * @throws ValidationException If there is an issue with the validation of the retrieved data.
      */
     public function loadPermissions() : void {
         $user_group_dao = new UserGroupsDAO();
@@ -382,9 +393,6 @@ class UserGroupDTO {
             "permissions" => []
         ];
         
-        // Note: I'm not using getPermissions() here in order not to trigger the loading of the permission.
-        // Include them in the array only if loaded previously.
-        // otherwise infinite loop user_group loads permissions loads user_groups loads permissions loads user_groups...
         foreach ($this->permissions as $permission) {
             $array["permissions"][$permission->getId()] = $permission->toArray();
         }

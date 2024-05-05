@@ -11,16 +11,18 @@ declare(strict_types=1);
 namespace Viraj\Project\DAOs;
 
 use PDO;
-use Viraj\Project\DTOs\PermissionDTO;
-use Viraj\Project\DTOs\UserDTO;
 use Teacher\GivenCode\Exceptions\RuntimeException;
 use Teacher\GivenCode\Exceptions\ValidationException;
+use Viraj\Project\DTOs\PermissionDTO;
+use Viraj\Project\DTOs\UserDTO;
 use Viraj\Project\Services\DBConnectionService;
 
 /**
  * Data Access Object (DAO) for interacting with the 'users' table in the database.
  */
 class UsersDAO {
+    
+    // Class constants
     
     // SQL queries for CRUD operations on the 'users' table.
     
@@ -50,7 +52,6 @@ class UsersDAO {
      * Constructor
      */
     public function __construct() {}
-    
     
     /**
      * Retrieve all user records from the 'users' table of the database.
@@ -124,11 +125,10 @@ class UsersDAO {
     /**
      * Create a new user record in the 'users' table of the database.
      *
-     * @param UserDTO $user     The UserDTO object representing the user to insert.
+     * @param UserDTO $user The UserDTO object representing the user to insert.
      * @return UserDTO The newly created UserDTO object.
      * @throws ValidationException If the <code>$user</code> object properties is not valid for insert.
-     * @throws RuntimeException If a database connection error occurs or If the newly created user record cannot be
-     *                          retrieved from the database after insertion.
+     * @throws RuntimeException If a database connection error occurs or If the newly created user record cannot be retrieved from the database after insertion.
      */
     public function create(UserDTO $user) : UserDTO {
         
@@ -171,11 +171,10 @@ class UsersDAO {
     /**
      * Update an existing user record in the 'users' table of the database.
      *
-     * @param UserDTO $user     The UserDTO object representing the user to update.
+     * @param UserDTO $user The UserDTO object representing the user to update.
      * @return UserDTO The updated UserDTO object.
      * @throws ValidationException If the <code>$user</code> object properties is not valid for update.
-     * @throws RuntimeException If a database connection error occurs or if the updated user record cannot be retrieved
-     *                          from the database after update.
+     * @throws RuntimeException If a database connection error occurs or if the updated user record cannot be retrieved from the database after update.
      */
     public function update(UserDTO $user) : UserDTO {
         
@@ -203,7 +202,7 @@ class UsersDAO {
         // Retrieve the updated user record from the database.
         $updated_user = $this->getById($user->getId());
         
-        // CompletedTODO: do something in the case that getById returns null. It shouldn't happen, but its a case to handle.
+        // CompletedTODO: do something in the case that getById returns null. It shouldn't happen, but it's a case to handle.
         // Handle the case where getById returns null (shouldn't happen).
         if ($updated_user === null) {
             throw new RuntimeException("Failed to retrieve the updated user record.");
@@ -254,56 +253,70 @@ class UsersDAO {
     
     
     /**
-     * @param int $id
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
+     * Retrieves permissions associated with a user by their ID from the database.
+     *
+     * @param int $id The ID of the user.
+     * @return array An array of PermissionDTO objects representing the permissions associated with the user.
+     * @throws RuntimeException If a database connection error occurs.
+     * @throws ValidationException If there's an issue with the validation of the retrieved data.
      */
     public function getPermissionsByUserId(int $id) : array {
         
-        // Join query
+        // Join query to retrieve permissions associated with the user by their ID from the `user_permissions` table.
         $query = "SELECT p.* FROM " . UserDTO::TABLE_NAME . " u JOIN " . UserPermissionDAO::TABLE_NAME . " up ON u.id = up.user_id JOIN " . PermissionDTO::TABLE_NAME . " p ON up.permission_id = p.id WHERE u.id = :userId";
         
-        
+        // Establish a database connection.
         $connection = DBConnectionService::getConnection();
         
+        // Prepare the SQL statement.
         $statement = $connection->prepare($query);
         
+        // Bind the value to the parameterized statement.
         $statement->bindValue(":userId", $id, PDO::PARAM_INT);
         
+        // Execute the SQL statement.
         $statement->execute();
         
+        // Fetch the results as an associative array.
         $result_set = $statement->fetchAll(PDO::FETCH_ASSOC);
         
+        // Initialize an array to store PermissionDTO objects
         $permissions_array = [];
         
+        // Iterate through each permission record and create PermissionDTO objects
         foreach ($result_set as $permission_record_array) {
             $permissions_array[] = PermissionDTO::fromDbArray($permission_record_array);
         }
         
+        // Return the array of PermissionDTO objects
         return $permissions_array;
     }
     
     /**
+     * Retrieves permissions associated with a user from the database.
      *
-     * @param UserDTO $user
-     * @return array
-     * @throws ValidationException
-     * @throws RuntimeException
+     * @param UserDTO $user The UserDTO object representing the user.
+     * @return array An array of PermissionDTO objects representing the permissions associated with the user.
+     * @throws ValidationException If the user object does not have an ID set.
+     * @throws RuntimeException If a database connection error occurs.
      */
     public function getPermissionsByUser(UserDTO $user) : array {
+        // Check if the user object has an ID set
         if (empty($user->getId())) {
             throw new ValidationException("Cannot get the permission records for a user with no set [id] property value.");
         }
+        
+        // Call the getPermissionsByUserId method with the user's ID
         return $this->getPermissionsByUserId($user->getId());
     }
     
     /**
+     * Retrieves a user by username from the database.
      *
-     * @param string $username
-     * @return UserDTO|null
-     * @throws RuntimeException
-     * @throws ValidationException
+     * @param string $username The username of the user to retrieve.
+     * @return UserDTO|null The UserDTO object representing the user, or null if no user is found with the given username.
+     * @throws RuntimeException If a database connection error occurs.
+     * @throws ValidationException If there's an issue with the validation of the retrieved data.
      */
     public function getUserByUsername(string $username) : ?UserDTO {
         

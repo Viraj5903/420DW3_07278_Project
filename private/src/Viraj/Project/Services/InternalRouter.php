@@ -36,14 +36,21 @@ class InternalRouter implements IService {
      * @throws ValidationException
      */
     public function __construct(string $uri_base_directory = "") {
+        
         $this->uriBaseDirectory = $uri_base_directory;
         $this->routes = new RouteCollection();
+        
+        // API Routes
         $this->routes->addRoute(new APIRoute("/api/permissions", PermissionsController::class));
         $this->routes->addRoute(new APIRoute("/api/users", UsersController::class));
         $this->routes->addRoute(new APIRoute("/api/usergroups", UsergroupsController::class));
         $this->routes->addRoute(new APIRoute("/api/login", LoginController::class));
+        
+        // Web Page Routes
         $this->routes->addRoute(new WebpageRoute("/index.php", "Viraj/page.home.php"));
         $this->routes->addRoute(new WebpageRoute("/", "Viraj/page.home.php"));
+        
+        // Callable Routes (Navigation)
         $this->routes->addRoute(new CallableRoute("/pages/login", [PageNavigator::class, "loginPage"]));
         $this->routes->addRoute(new CallableRoute("/pages/users", [PageNavigator::class, "usersManagementPage"]));
         $this->routes->addRoute(new CallableRoute("/pages/usergroups", [PageNavigator::class, "userGroupsManagementPage"]));

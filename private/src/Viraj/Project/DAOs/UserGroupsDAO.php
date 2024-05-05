@@ -11,16 +11,18 @@ declare(strict_types=1);
 namespace Viraj\Project\DAOs;
 
 use PDO;
-use Viraj\Project\DTOs\PermissionDTO;
-use Viraj\Project\DTOs\UserGroupDTO;
 use Teacher\GivenCode\Exceptions\RuntimeException;
 use Teacher\GivenCode\Exceptions\ValidationException;
+use Viraj\Project\DTOs\PermissionDTO;
+use Viraj\Project\DTOs\UserGroupDTO;
 use Viraj\Project\Services\DBConnectionService;
 
 /**
  * Data Access Object (DAO) for interacting with the 'user_groups' table in the database.
  */
 class UserGroupsDAO {
+    
+    // Class constants.
     
     // SQL queries for CRUD operations on the 'user_groups' table.
     
@@ -160,7 +162,6 @@ class UserGroupsDAO {
         // Retrieve the newly created user_group record from the database by its ID.
         $created_user_group = $this->getById($new_id);
         
-        // CompletedTODO: do something in the case that getById returns null. It shouldn't happen, but its a case to handle.
         // Handle the case where getById returns null (shouldn't happen).
         if ($created_user_group === null) {
             throw new RuntimeException("Failed to retrieve the newly created user_group record.");
@@ -176,8 +177,7 @@ class UserGroupsDAO {
      * @param UserGroupDTO $userGroup The UserGroupDTO object representing the user_group to update.
      * @return UserGroupDTO The updated UserGroupDTO object.
      * @throws ValidationException If the <code>$userGroup</code> object properties is not valid for update.
-     * @throws RuntimeException If a database connection error occurs or if the updated user_group record cannot be
-     *                                retrieved from the database after update.
+     * @throws RuntimeException If a database connection error occurs or if the updated user_group record cannot be retrieved from the database after update.
      */
     public function update(UserGroupDTO $userGroup) : UserGroupDTO {
         
@@ -238,8 +238,7 @@ class UserGroupsDAO {
      *
      * @param UserGroupDTO $userGroup The UserGroupDTO object representing the user_group to delete.
      * @return void
-     * @throws ValidationException     If the <code>$userGroup</code> object parameter is not an UserGroupDTO instance
-     *                                 or if the <code>$userGroup</code> object properties is not valid for delete.
+     * @throws ValidationException     If the <code>$userGroup</code> object parameter is not an UserGroupDTO instance or if the <code>$userGroup</code> object properties is not valid for delete.
      * @throws RuntimeException        If a database connection error occurs.
      */
     public function delete(UserGroupDTO $userGroup) : void {
@@ -252,46 +251,62 @@ class UserGroupsDAO {
     }
     
     /**
+     * Retrieves permissions associated with a user group by its ID from the database.
      *
-     * @param int $id
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
+     * @param int $id The ID of the user group.
+     * @return array An array of PermissionDTO objects representing the permissions associated with the user group.
+     * @throws RuntimeException If a database connection error occurs.
+     * @throws ValidationException If there's an issue with the validation of the retrieved data.
      */
     public function getPermissionsByUserGroupId(int $id) : array {
         
+        // Join query to retrieve permissions associated with the user group by their ID from the `user_group_permissions` table.
         $query = "SELECT p.* FROM " . UserGroupDTO::TABLE_NAME . " g JOIN " . UserGroupPermissionDAO::TABLE_NAME . " gp ON g.id = gp.user_group_id JOIN " . PermissionDTO::TABLE_NAME . " p ON gp.permission_id = p.id WHERE g.id = :userGroupId";
         
+        // Establish a database connection
         $connection = DBConnectionService::getConnection();
         
+        // Prepare the SQL statement
         $statement = $connection->prepare($query);
         
+        // Bind the user group ID parameter to the statement
         $statement->bindValue(":userGroupId", $id, PDO::PARAM_INT);
         
+        // Execute the SQL statement
         $statement->execute();
         
+        // Fetch the results as an associative array
         $result_set = $statement->fetchAll(PDO::FETCH_ASSOC);
         
+        // Initialize an array to store PermissionDTO objects
         $permissions_array = [];
         
+        // Iterate through each permission record and create PermissionDTO objects
         foreach ($result_set as $permission_record_array) {
             $permissions_array[] = PermissionDTO::fromDbArray($permission_record_array);
         }
         
+        // Return the array of PermissionDTO objects
         return $permissions_array;
     }
     
+    
     /**
-     * @param UserGroupDTO $userGroup
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
+     * Retrieves permissions associated with a user group from the database.
+     *
+     * @param UserGroupDTO $userGroup The UserGroupDTO object representing the user group.
+     * @return array An array of PermissionDTO objects representing the permissions associated with the user group.
+     * @throws ValidationException If the user group object does not have an ID set.
+     * @throws RuntimeException If a database connection error occurs.
      */
     public function getPermissionsByUserGroup(UserGroupDTO $userGroup) : array {
+        // Check if the user group object has an ID set
         if (empty($userGroup->getId())) {
-            throw new ValidationException("Cannot get the permission records for a user_group with no set [id] property value.");
+            throw new ValidationException("Cannot get the permission records for a user group with no set [id] property value.");
         }
         
+        // Call the getPermissionsByUserGroupId method with the user group's ID
         return $this->getPermissionsByUserGroupId($userGroup->getId());
     }
+    
 }

@@ -17,11 +17,11 @@ declare(strict_types=1);
 namespace Viraj\Project\Services;
 
 use Exception;
+use Teacher\GivenCode\Exceptions\RuntimeException;
+use Teacher\GivenCode\Exceptions\ValidationException;
 use Viraj\Project\DAOs\UserPermissionDAO;
 use Viraj\Project\DTOs\UserDTO;
 use Viraj\Project\DAOs\UsersDAO;
-use Teacher\GivenCode\Exceptions\RuntimeException;
-use Teacher\GivenCode\Exceptions\ValidationException;
 
 /**
  * Service class for users operation.
@@ -35,8 +35,7 @@ class UsersService {
     
     /**
      * Constructor for UsersService class.
-     * Initializes UsersDAO object for database interaction and CryptographyService object the hashing and validation
-     * of user passwords.
+     * Initializes UsersDAO, CryptographyService and UserPermissionDAO objects for database interaction and CryptographyService object the hashing and validation of user passwords.
      */
     public function __construct() {
         $this->usersDAO = new UsersDAO(); // Initialize UsersDAO object.
@@ -177,7 +176,7 @@ class UsersService {
                     throw new Exception("User id# [$id] not found in the database.");
                 }
                 
-                // Removing permissions first.
+                // Delete the first the user and permissions association from the `user_permissions` table.
                 $this->userPermissionDAO->deleteAllByUserId($user->getId());
                 
                 $this->usersDAO->delete($user); // Delete the user from the database.
@@ -197,12 +196,12 @@ class UsersService {
     
     
     /**
+     * Retrieves permissions associated with a user by their ID from the database.
      *
-     *
-     * @param int $id
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
+     * @param int $id The ID of the user.
+     * @return array An array of PermissionDTO objects representing the permissions associated with the user.
+     * @throws RuntimeException If a database connection error occurs.
+     * @throws ValidationException If there's an issue with the validation of the retrieved data.
      */
     public function getUserPermissionByUserId(int $id) : array {
         return $this->usersDAO->getPermissionsByUserId($id);
@@ -210,39 +209,45 @@ class UsersService {
     
     
     /**
+     * Retrieves permissions associated with a user from the database.
      *
-     *
-     * @param UserDTO $user
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
+     * @param UserDTO $user The UserDTO object representing the user.
+     * @return array An array of PermissionDTO objects representing the permissions associated with the user.
+     * @throws RuntimeException If a database connection error occurs.
+     * @throws ValidationException If the user object does not have an ID set.
      */
     public function getUserPermission(UserDTO $user) : array {
         return $this->getUserPermissionByUserId($user->getId());
     }
     
     /**
+     * Validates a user's credentials.
      *
-     * @param string $username
-     * @param string $password
-     * @return UserDTO|null|int
-     * @throws RuntimeException
-     * @throws ValidationException
+     * @param string $username The username of the user.
+     * @param string $password The password of the user.
+     * @return UserDTO|null|false The UserDTO object if credentials are valid, null if username is not found, false if password is invalid.
+     * @throws RuntimeException If a database connection error occurs.
+     * @throws ValidationException If there's an issue with the validation of the retrieved data.
      */
     public function validateUser(string $username, string $password) : UserDTO|null|false {
         
+        // Retrieve user by username from the database.
         $user = $this->usersDAO->getUserByUsername($username);
         
+        // If no user found with the provided username, return null.
         if (is_null($user)) {
             return null;
         }
         
+        // Compare the provided password with the hashed password stored in the database.
         $result = $this->cryptographyService->comparePassword($password, $user->getPasswordHash());
         
+        // If passwords don't match, return false.
         if ($result === false) {
             return false;
         }
         
+        // If credentials are valid, return the UserDTO object.
         return $user;
     }
 }

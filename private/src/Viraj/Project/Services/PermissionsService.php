@@ -17,10 +17,12 @@ declare(strict_types=1);
 namespace Viraj\Project\Services;
 
 use Exception;
-use Viraj\Project\DTOs\PermissionDTO;
-use Viraj\Project\DAOs\PermissionsDAO;
 use Teacher\GivenCode\Exceptions\RuntimeException;
 use Teacher\GivenCode\Exceptions\ValidationException;
+use Viraj\Project\DAOs\UserGroupPermissionDAO;
+use Viraj\Project\DAOs\UserPermissionDAO;
+use Viraj\Project\DTOs\PermissionDTO;
+use Viraj\Project\DAOs\PermissionsDAO;
 
 /**
  * Service class for permissions operation.
@@ -29,13 +31,17 @@ class PermissionsService {
     
     // Class properties
     private PermissionsDAO $permissionsDAO; // PermissionsDAO object for interacting with the permissions table of the database.
+    private UserGroupPermissionDAO $userGroupPermissionDAO; // UserGroupPermissionDAO object for interacting with the user_group_permissions table of the database.
+    private UserPermissionDAO $userPermissionDAO; // UserPermissionDAO object for interacting with the user_permissions table of the database.
     
     /**
      * Constructor for PermissionsService class.
-     * Initializes PermissionsDAO object for database interaction.
+     * Initializes PermissionsDAO, UserGroupPermissionDAO and UserPermissionDAO objects for database interaction.
      */
     public function __construct() {
         $this->permissionsDAO = new PermissionsDAO(); // Initialize PermissionsDAO object.
+        $this->userGroupPermissionDAO = new UserGroupPermissionDAO(); // Initialize UserGroupPermissionDAO object.
+        $this->userPermissionDAO = new UserPermissionDAO(); // Initialize UserPermissionDAO object.
     }
     
     /**
@@ -79,7 +85,7 @@ class PermissionsService {
             return $this->permissionsDAO->create($permission);
             
         } catch (Exception $exception) {
-            throw new RuntimeException("Failure to create user [$uniquePermission, $permissionName, $description]." ,(int) $exception->getCode(), $exception);
+            throw new RuntimeException("Failure to create user [$uniquePermission, $permissionName, $description]." , (int) $exception->getCode(), $exception);
         }
         
     }
@@ -152,6 +158,13 @@ class PermissionsService {
                 if (is_null($permission)) {
                     throw new Exception("User id# [$id] not found in the database.");
                 }
+                
+                // Delete the first the permissions and users association from the `user_permissions` table.
+                $this->userPermissionDAO->deleteAllByPermissionId($permission->getId());
+                
+                // Delete the first the permissions and user groups association from the `user_groups_permissions` table.
+                $this->userGroupPermissionDAO->deleteAllByPermissionId($permission->getId());
+                
                 $this->permissionsDAO->delete($permission); // Delete the permission from the database.
                 
                 $connection->commit(); // Commit the transaction to save changes.
@@ -165,51 +178,5 @@ class PermissionsService {
             throw new RuntimeException("Failure to delete permission id# [$id].", (int) $exception->getCode(), $exception);
         }
         
-    }
-    
-    /**
-     *
-     *
-     * @param int $id
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
-     */
-    public function getUserPermissionsByPermissionId(int $id) : array {
-        return $this->permissionsDAO->getUsersByPermissionId($id);
-    }
-    
-    /**
-     *
-     *
-     * @throws ValidationException
-     * @throws RuntimeException
-     */
-    public function getUserPermissions(PermissionDTO $permission) : array {
-        return $this->getUserPermissionsByPermissionId($permission->getId());
-    }
-    
-    /**
-     *
-     *
-     * @param int $id
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
-     */
-    public function getUserGroupPermissionsByPermissionId(int $id) : array {
-        return $this->permissionsDAO->getUserGroupsByPermissionId($id);
-    }
-    
-    /**
-     *
-     *
-     * @param PermissionDTO $permission
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
-     */
-    public function getUserGroupPermissions(PermissionDTO $permission) : array {
-        return $this->getUserGroupPermissionsByPermissionId($permission->getId());
     }
 }

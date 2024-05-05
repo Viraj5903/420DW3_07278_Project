@@ -11,18 +11,17 @@ declare(strict_types=1);
 namespace Viraj\Project\DAOs;
 
 use PDO;
-use Viraj\Project\DTOs\PermissionDTO;
 use Teacher\GivenCode\Exceptions\RuntimeException;
 use Teacher\GivenCode\Exceptions\ValidationException;
-use Viraj\Project\DTOs\UserDTO;
-use Viraj\Project\DTOs\UserGroupDTO;
+use Viraj\Project\DTOs\PermissionDTO;
 use Viraj\Project\Services\DBConnectionService;
-
 
 /**
  * Data Access Object (DAO) for interacting with the 'permissions' table in the database.
  */
 class PermissionsDAO {
+    
+    // Class constants.
     
     // SQL queries for CRUD operations on the 'permissions' table.
     
@@ -100,8 +99,7 @@ class PermissionsDAO {
         $connection = DBConnectionService::getConnection();
         
         // Prepare the SQL statement.
-        $query = self::GET_QUERY;
-        $statement = $connection->prepare($query);
+        $statement = $connection->prepare(self::GET_QUERY);
         
         // Bind the ID parameter to the statement.
         $statement->bindValue(":id", $id, PDO::PARAM_INT);
@@ -161,7 +159,6 @@ class PermissionsDAO {
         // Retrieve the newly created permission record from the database by its ID.
         $created_permission = $this->getById($new_id);
         
-        // CompletedTODO: do something in the case that getById returns null. It shouldn't happen, but its a case to handle.
         // Handle the case where getById returns null (shouldn't happen).
         if ($created_permission === null) {
             throw new RuntimeException("Failed to retrieve the newly created permission record.");
@@ -200,13 +197,13 @@ class PermissionsDAO {
         } else {
             $statement->bindValue(":description", $permission->getDescription(), PDO::PARAM_STR);
         }
+        
         // Execute the SQL statement.
         $statement->execute();
         
         // Retrieve the updated permission record from the database.
         $updated_permission = $this->getById($permission->getId());
         
-        // Completed TODO: do something in the case that getById returns null. It shouldn't happen, but its a case to handle.
         // Handle the case where getById returns null (shouldn't happen).
         if ($updated_permission === null) {
             throw new RuntimeException("Failed to retrieve the updated permission record.");
@@ -253,100 +250,5 @@ class PermissionsDAO {
         
         // Call the deleteById method to perform the deletion.
         $this->deleteById($permission->getId());
-    }
-    
-    /**
-     *
-     * @param int $id
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
-     */
-    public function getUsersByPermissionId(int $id) : array {
-        
-        // Join query
-        $query = "SELECT u.* FROM " . PermissionDTO::TABLE_NAME . " p JOIN " . UserPermissionDAO::TABLE_NAME . " up ON p.id = up.permission_id JOIN " . UserDTO::TABLE_NAME . " u ON up.user_id = u.id WHERE p.id = :permissionId";
-        
-        
-        $connection = DBConnectionService::getConnection();
-        
-        $statement = $connection->prepare($query);
-        
-        $statement->bindValue(":permissionId", $id, PDO::PARAM_INT);
-        
-        $statement->execute();
-        
-        $result_set = $statement->fetchAll(PDO::FETCH_ASSOC);
-        
-        $users_array = [];
-        
-        foreach ($result_set as $user_record_array) {
-            $users_array[] = UserDTO::fromDbArray($user_record_array);
-        }
-        
-        return $users_array;
-    }
-    
-    /**
-     *
-     *
-     * @param PermissionDTO $permission
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
-     */
-    public function getPermissionsByUser(PermissionDTO $permission) : array {
-        if (empty($permission->getId())) {
-            throw new ValidationException("Cannot get the user records for a permission with no set [id] property value.");
-        }
-        return $this->getUsersByPermissionId($permission->getId());
-    }
-    
-    /**
-     *
-     *
-     * @param int $id
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
-     */
-    public function getUserGroupsByPermissionId(int $id) : array {
-        
-        $query = "SELECT g.* FROM " . PermissionDTO::TABLE_NAME . " p JOIN " . UserGroupPermissionDAO::TABLE_NAME . " gp ON p.id = gp.permission_id JOIN " . UserGroupDTO::TABLE_NAME . " g ON gp.user_group_id = g.id WHERE p.id = :permissionId";
-        
-        $connection = DBConnectionService::getConnection();
-        
-        $statement = $connection->prepare($query);
-        
-        $statement->bindValue(":permissionId", $id, PDO::PARAM_INT);
-        
-        $statement->execute();
-        
-        $result_set = $statement->fetchAll(PDO::FETCH_ASSOC);
-        
-        $user_groups_array = [];
-        
-        foreach ($result_set as $user_group_record_array) {
-            $user_groups_array[] = UserGroupDTO::fromDbArray($user_group_record_array);
-        }
-        
-        return $user_groups_array;
-    }
-    
-    
-    /**
-     *
-     *
-     * @param PermissionDTO $permission
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
-     */
-    public function getUserGroupByPermission(PermissionDTO $permission) : array {
-        if (empty($permission->getId())) {
-            throw new ValidationException("Cannot get the user_group records for a permission with no set [id] property value.");
-        }
-        
-        return $this->getUserGroupsByPermissionId($permission->getId());
     }
 }

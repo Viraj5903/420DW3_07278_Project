@@ -17,23 +17,24 @@ declare(strict_types=1);
 namespace Viraj\Project\Services;
 
 use Exception;
+use Teacher\GivenCode\Exceptions\RuntimeException;
+use Teacher\GivenCode\Exceptions\ValidationException;
 use Viraj\Project\DAOs\UserGroupPermissionDAO;
 use Viraj\Project\DTOs\UserGroupDTO;
 use Viraj\Project\DAOs\UserGroupsDAO;
-use Teacher\GivenCode\Exceptions\RuntimeException;
-use Teacher\GivenCode\Exceptions\ValidationException;
 
 /**
  * Service class for user_groups operation.
  */
 class UserGroupsService {
+    
     // Class properties
     private UserGroupsDAO $userGroupsDAO; // UserGroupsDAO object for interacting with the permissions table of the database.
     private UserGroupPermissionDAO $userGroupPermissionDAO; // UserGroupsDAO object for interacting with the user_group_permissions table of the database.
     
     /**
      * Constructor for UserGroupsService class.
-     * Initializes UserGroupsDAO object for database interaction.
+     * Initializes UserGroupsDAO and UserGroupPermissionDAO objects for database interaction.
      */
     public function __construct() {
         $this->userGroupsDAO = new UserGroupsDAO(); // Initialize UserGroupsDAO object.
@@ -161,6 +162,10 @@ class UserGroupsService {
                 if (is_null($user_group)) {
                     throw new Exception("User group id# [$id] not found in the database.");
                 }
+                
+                // Delete the first the user group and permissions association from the `user_group_permissions` table.
+                $this->userGroupPermissionDAO->deleteAllByUserGroupId($user_group->getId());
+                
                 $this->userGroupsDAO->delete($user_group); // Delete the $user_group from the database.
                 
                 $connection->commit(); // Commit the transaction to save changes.
@@ -177,22 +182,24 @@ class UserGroupsService {
     }
     
     /**
+     * Retrieves permissions associated with a user group by its ID from the database.
      *
-     * @param int $id
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
+     * @param int $id The ID of the user group.
+     * @return array An array of PermissionDTO objects representing the permissions associated with the user group.
+     * @throws RuntimeException If a database connection error occurs.
+     * @throws ValidationException If there's an issue with the validation of the retrieved data.
      */
     public function getUserGroupPermissionsByUserGroupId(int $id) : array {
         return $this->userGroupsDAO->getPermissionsByUserGroupId($id);
     }
     
     /**
+     * Retrieves permissions associated with a user group from the database.
      *
-     * @param UserGroupDTO $userGroup
-     * @return array
-     * @throws RuntimeException
-     * @throws ValidationException
+     * @param UserGroupDTO $userGroup The UserGroupDTO object representing the user group.
+     * @return array An array of PermissionDTO objects representing the permissions associated with the user group.
+     * @throws RuntimeException If a database connection error occurs.
+     * @throws ValidationException If there's an issue with the validation of the retrieved data.
      */
     public function getUserGroupPermission(UserGroupDTO $userGroup) : array {
         return $this->getUserGroupPermissionsByUserGroupId($userGroup->getId());

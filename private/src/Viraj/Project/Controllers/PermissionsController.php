@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Viraj\Project\Controllers;
 
-use JsonException;
 use Teacher\GivenCode\Abstracts\AbstractController;
 use Teacher\GivenCode\Exceptions\RequestException;
 use Teacher\GivenCode\Exceptions\RuntimeException;
@@ -85,11 +84,6 @@ class PermissionsController extends AbstractController {
         if (empty($_REQUEST["permission_name"])) { // Check if the "permission_name" parameter is missing in the request.
             throw new RequestException("Bad request: required parameter [permission_name] not found in the request.", 400);
         }
-        /*if (empty($_REQUEST["description"])) { // Check if the "description" parameter is missing in the request.
-            throw new RequestException("Bad request: required parameter [description] not found in the request.", 400);
-        }*/
-        
-        // NOTE: no need for validation of the string lengths here, as that is done by the setter methods of the PermissionDTO class used when creating a PermissionDTO instance in the create method of PermissionsService.
         
         // Create new permission using provided data.
         $instance = $this->permissionsService->createPermission($_REQUEST["unique_permission"], $_REQUEST["permission_name"], $_REQUEST["description"]); // Create new permission.
@@ -129,13 +123,6 @@ class PermissionsController extends AbstractController {
         if (empty($_REQUEST["permission_name"])) { // Check if the "permission_name" parameter is missing in the request.
             throw new RequestException("Bad request: required parameter [permission_name] not found in the request.", 400);
         }
-        
-        if (empty($_REQUEST["description"])) { // Check if the "description" parameter is missing in the request.
-            throw new RequestException("Bad request: required parameter [description] not found in the request.", 400);
-        }
-        
-        // NOTE: no need for validation of the string lengths here, as that is done by the setter methods of the
-        // PermissionDTO class used when creating an PermissionDTO instance in the creation method of PermissionsService.
         
         // Update existing permission using provided data.
         $int_id = (int) $_REQUEST["id"]; // Convert the "id" parameter to an integer.

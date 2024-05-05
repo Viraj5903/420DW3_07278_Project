@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 /*
  * 420DW3_07278_Project index.php
- * 
- * @author Marc-Eric Boury (MEbou)
- * @since 2024-03-14
- * (c) Copyright 2024 Marc-Eric Boury 
+ *
+ * @author Viraj Patel
+ * @since 2024-04-11
  */
 
 require_once "private/helpers/init.php";
@@ -23,6 +22,5 @@ Debug::$DEBUG_MODE = false;
 //$application->run();
 
 //
-
 $application = new Application();
 $application->run();

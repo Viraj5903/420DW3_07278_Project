@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+/*
+ * 420DW3_07278_Project standard.page.header.php
+ *
+ * @author Viraj Patel
+ * @since 2024-04-30
+ */
+
 ?>
 
 <footer class="container-fluid bg-dark py-3 mt-auto">

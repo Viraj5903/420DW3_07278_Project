@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+/*
+ * 420DW3_07278_Project standard.page.footer.php
+ *
+ * @author Viraj Patel
+ * @since 2024-04-30
+ */
+
 use Viraj\Project\Services\LoginService;
 
 ?>

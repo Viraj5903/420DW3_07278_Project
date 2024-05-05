@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace Viraj\Project\Controllers;
 
-use JsonException;
 use Teacher\GivenCode\Abstracts\AbstractController;
 use Teacher\GivenCode\Exceptions\RequestException;
 use Teacher\GivenCode\Exceptions\RuntimeException;

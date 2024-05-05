@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+/*
+ * 420DW3_07278_Project Application.php
+ *
+ * @author Viraj Patel
+ * @since 2024-04-30
+ */
+
 namespace Viraj\Project;
 
 use Debug;
@@ -9,7 +16,7 @@ use Viraj\Project\Services\InternalRouter;
 use ErrorException;
 
 /**
- *
+ * Application starting class.
  */
 class Application {
     private InternalRouter $router;
@@ -20,6 +27,8 @@ class Application {
     
     
     /**
+     * Starting the web server application.
+     *
      * @return void
      */
     public function run() : void {

@@ -4,9 +4,13 @@ declare(strict_types=1);
 namespace Viraj\Project\Controllers;
 
 /**
+ * 420DW3_07278_Project PageNavigator.php
  *
+ * @author Viraj Patel
+ * @since  2024-04-11
  */
 class PageNavigator {
+    
     /**
      * Function to navigate to login page.
      *
