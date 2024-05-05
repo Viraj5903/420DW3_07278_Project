@@ -16,3 +16,80 @@ main {
 footer {
     flex-shrink: 0;
 }
+
+/* Add your media queries here */
+@media (max-width: 575px) {
+    /* very small screens (bootstrap xs)*/
+    .justify-content-md-end {
+        justify-content: center !important;
+    }
+
+    .py-md-0 {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .px-md-4 {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+}
+@media (min-width: 576px) {
+    /* small screens (bootstrap sm)*/
+}
+@media (min-width: 768px) {
+    /* medium screens (bootstrap md)*/
+}
+@media (min-width: 992px) {
+    /* large screens (bootstrap lg)*/
+}
+@media (min-width: 1200px) {
+    /* very large screens (bootstrap xl)*/
+}
+@media (min-width: 1400px) {
+    /* very very large screens (bootstrap xxl)*/
+}
+
+/*!* Apply styles for very small screens (Bootstrap xs) *!*/
+/*@media (max-width: 575px) {*/
+/*    !* Add your CSS rules for very small screens here *!*/
+/*    .navbar-nav {*/
+/*        flex-direction: column;*/
+/*    }*/
+
+/*    .navbar-nav .nav-item {*/
+/*        margin-bottom: 5px;*/
+/*    }*/
+/*}*/
+
+/*!* Apply styles for small screens (Bootstrap sm) and larger *!*/
+/*@media (min-width: 576px) {*/
+/*    !* Adjust label alignment for better readability *!*/
+/*    label {*/
+/*        text-align: end;*/
+/*    }*/
+/*}*/
+
+/*!* Apply styles for medium screens (Bootstrap md) and larger *!*/
+/*@media (min-width: 768px) {*/
+/*    !* Center-align the main heading *!*/
+/*    h3.fullwidth {*/
+/*        text-align: center;*/
+/*    }*/
+/*}*/
+
+/*!* Apply styles for large screens (Bootstrap lg) and larger *!*/
+/*@media (min-width: 992px) {*/
+/*    !* Increase the font size of the main heading *!*/
+/*    h3.fullwidth {*/
+/*        font-size: 2.5rem;*/
+/*    }*/
+/*}*/
+
+/*!* Apply styles for extra-large screens (Bootstrap xl) and larger *!*/
+/*@media (min-width: 1200px) {*/
+/*}*/
+
+/*!* Apply styles for very large screens (Bootstrap xxl) and larger *!*/
+/*@media (min-width: 1400px) {*/
+/*}*/

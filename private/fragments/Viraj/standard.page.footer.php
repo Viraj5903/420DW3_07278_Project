@@ -13,7 +13,8 @@ declare(strict_types=1);
 <footer class="container-fluid bg-dark py-3 mt-auto">
     <div class="container text-white">
         <div class="row">
-            <div class="col-lg-4 mb-3 mb-lg-0">
+            <div class="col-lg-3 mb-3 mb-lg-0">
+                <h5>Quick Links</h5>
                 <ul class="list-unstyled">
                     <li><a class="text-white text-decoration-none" href="<?= WEB_ROOT_DIR ?>">Home</a></li>
                     <li><a class="text-white text-decoration-none" href="<?= WEB_ROOT_DIR . "pages/users" ?>">Users Management</a></li>
@@ -24,3 +25,4 @@ declare(strict_types=1);
         </div>
     </div>
 </footer>
+

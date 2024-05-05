@@ -1,6 +1,8 @@
 $(".nav-bar-entry").on("click", (event) => {
-    let navigationUrl = $(event.currentTarget).data("url");
-    let type = $(event.currentTarget).data("type");
+    // The data-* global attributes form a class of attributes called custom data attributes, that allow proprietary information to be exchanged between the HTML and its DOM representation by scripts.
+    const navigationUrl = $(event.currentTarget).data("url");
+    const type = $(event.currentTarget).data("type");
+    
     let httpMethod = $(event.currentTarget).data("method");
     if (typeof httpMethod === "undefined") {
         httpMethod = "get";
@@ -11,14 +13,19 @@ $(".nav-bar-entry").on("click", (event) => {
             method: httpMethod,
             dataType: "json"
         }).done((data, status, jqXHR) => {
+            console.log(data);
             if ("navigateTo" in data) {
                 window.location = data.navigateTo;
+            }
+        }).fail((jqXHR, textstatus, error) => {
+            console.log(jqXHR);
+            if ('responseJSON' in jqXHR && typeof jqXHR.responseJSON === "object") {
+                displayResponseError(jqXHR.responseJSON);
             }
         });
     } else {
         window.location = navigationUrl;
     }
-    
 });
 
 function displayResponseError(responseErrorObject) {

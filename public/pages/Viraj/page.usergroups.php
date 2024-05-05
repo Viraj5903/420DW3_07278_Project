@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+/*
+ * 420DW3_07278_Project page.usergroups.php
+ *
+ * @author Viraj Patel
+ * @since 2024-05-03
+ */
+
 use Viraj\Project\DTOs\UserGroupDTO;
 use Viraj\Project\Services\LoginService;
 use Viraj\Project\Services\PermissionsService;
@@ -156,4 +163,3 @@ HTDOC;
 <script type="text/javascript" src="<?= WEB_JS_DIR . "viraj.page.usergroups.js" ?>" defer></script>
 </body>
 </html>
-

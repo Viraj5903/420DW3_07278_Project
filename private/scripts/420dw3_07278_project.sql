@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 06, 2024 at 07:19 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Generation Time: May 05, 2024 at 01:09 PM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -27,116 +27,145 @@ USE `420dw3_07278_project`;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `authors`
+-- Table structure for table `permissions`
 --
 
-DROP TABLE IF EXISTS `authors`;
-CREATE TABLE IF NOT EXISTS `authors` (
+DROP TABLE IF EXISTS `permissions`;
+CREATE TABLE IF NOT EXISTS `permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `first_name` varchar(64) NOT NULL,
-  `last_name` varchar(64) NOT NULL,
-  `date_created` datetime(6) NOT NULL DEFAULT current_timestamp(6),
-  `date_last_modified` datetime(6) DEFAULT NULL ON UPDATE current_timestamp(6),
-  `date_deleted` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `unique_permission` varchar(64) NOT NULL,
+  `permission_name` varchar(64) NOT NULL,
+  `description` varchar(256) DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  `last_modified_at` datetime(6) DEFAULT NULL ON UPDATE current_timestamp(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `permission_identifier` (`unique_permission`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `authors`
+-- Dumping data for table `permissions`
 --
 
-INSERT INTO `authors` (`id`, `first_name`, `last_name`, `date_created`, `date_last_modified`, `date_deleted`) VALUES
-(1, 'Phillip K.', 'Dick', '2024-04-06 15:31:10.764184', NULL, NULL),
-(2, 'Frank', 'Herbert', '2024-04-06 15:31:38.717578', NULL, NULL),
-(3, 'Robert A.', 'Heinlein', '2024-04-06 17:32:33.015072', '2024-04-06 17:42:50.117977', NULL),
-(4, 'Isaac', 'Asimov', '2024-04-06 17:34:56.562491', NULL, NULL);
+INSERT INTO `permissions` (`id`, `unique_permission`, `permission_name`, `description`, `created_at`, `last_modified_at`) VALUES
+(1, 'MANAGE_USERS', 'Manage Users', NULL, '2024-05-03 18:48:42.126948', '2024-05-04 00:58:19.726327'),
+(2, 'MANAGE_PERMISSIONS', 'MANAGE PERMISSIONS', NULL, '2024-05-04 01:03:56.468687', NULL),
+(3, 'MANAGE_USER_GROUPS', 'MANAGE USER GROUPS', NULL, '2024-05-04 02:03:17.925492', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `author_books`
+-- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `author_books`;
-CREATE TABLE IF NOT EXISTS `author_books` (
-  `author_id` int(11) NOT NULL,
-  `book_id` int(11) NOT NULL,
-  UNIQUE KEY `AUTHOR_BOOK_IDS_UNIQ` (`author_id`,`book_id`),
-  KEY `FK_BOOKS_AUTHORBOOKS` (`book_id`)
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(64) NOT NULL,
+  `password_hash` varchar(72) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  `last_modified_at` datetime(6) DEFAULT NULL ON UPDATE current_timestamp(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `password_hash`, `email`, `created_at`, `last_modified_at`) VALUES
+(2, 'Test', '$2y$10$1rR69VuVgz03c4K2o1exdeyPLRBj0qHoSNwVHKIgZCEPk3uIvYau2', 'test@gmail.com', '2024-05-03 20:41:02.773828', '2024-05-04 17:23:58.368233');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_groups`
+--
+
+DROP TABLE IF EXISTS `user_groups`;
+CREATE TABLE IF NOT EXISTS `user_groups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group_name` varchar(64) NOT NULL,
+  `description` varchar(256) DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  `last_modified_at` datetime(6) DEFAULT NULL ON UPDATE current_timestamp(6),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `group_name` (`group_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_groups`
+--
+
+INSERT INTO `user_groups` (`id`, `group_name`, `description`, `created_at`, `last_modified_at`) VALUES
+(2, 'Test', NULL, '2024-05-04 01:35:10.215643', NULL),
+(3, 'Test2', ' ', '2024-05-04 01:42:25.706990', NULL),
+(4, 'Test3', ' ', '2024-05-04 01:43:28.267219', NULL),
+(5, 'Test4', ' ', '2024-05-04 01:44:50.869417', NULL),
+(6, 'Exam1', ' Test', '2024-05-04 01:53:15.593807', '2024-05-04 02:01:24.413431');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_group_permissions`
+--
+
+DROP TABLE IF EXISTS `user_group_permissions`;
+CREATE TABLE IF NOT EXISTS `user_group_permissions` (
+  `user_group_id` int(11) NOT NULL,
+  `permission_id` int(11) NOT NULL,
+  PRIMARY KEY (`user_group_id`,`permission_id`) USING BTREE,
+  KEY `fk_permissions_user_group_permissions` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `author_books`
+-- Dumping data for table `user_group_permissions`
 --
 
-INSERT INTO `author_books` (`author_id`, `book_id`) VALUES
-(2, 1);
+INSERT INTO `user_group_permissions` (`user_group_id`, `permission_id`) VALUES
+(2, 2);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `books`
+-- Table structure for table `user_permissions`
 --
 
-DROP TABLE IF EXISTS `books`;
-CREATE TABLE IF NOT EXISTS `books` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(256) NOT NULL,
-  `description` varchar(1024) DEFAULT NULL,
-  `isbn` varchar(32) NOT NULL,
-  `publication_year` int(11) NOT NULL,
-  `date_created` datetime(6) NOT NULL DEFAULT current_timestamp(6),
-  `date_last_modified` datetime(6) DEFAULT NULL ON UPDATE current_timestamp(6),
-  `date_deleted` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+DROP TABLE IF EXISTS `user_permissions`;
+CREATE TABLE IF NOT EXISTS `user_permissions` (
+  `user_id` int(11) NOT NULL,
+  `permission_id` int(11) NOT NULL,
+  PRIMARY KEY (`user_id`,`permission_id`) USING BTREE,
+  KEY `fk_permissions_user_permissions` (`permission_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `books`
+-- Dumping data for table `user_permissions`
 --
 
-INSERT INTO `books` (`id`, `title`, `description`, `isbn`, `publication_year`, `date_created`, `date_last_modified`, `date_deleted`) VALUES
-(1, 'Dune', 'The original.', 'isbn-12345-4433-9856', 1965, '2024-04-06 18:54:04.461087', NULL, NULL),
-(2, 'Foundation', 'The novel that started it all.', 'isbn-12345-9988-5432', 1951, '2024-04-06 18:55:59.690410', NULL, NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `examples`
---
-
-DROP TABLE IF EXISTS `examples`;
-CREATE TABLE IF NOT EXISTS `examples` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `dayOfTheWeek` enum('sunday','monday','tuesday','wednesday','thursday','friday','saturday') NOT NULL,
-  `description` varchar(256) NOT NULL,
-  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6),
-  `last_modified_at` datetime(6) DEFAULT NULL ON UPDATE current_timestamp(6),
-  `deleted_at` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `examples`
---
-
-INSERT INTO `examples` (`id`, `dayOfTheWeek`, `description`, `created_at`, `last_modified_at`, `deleted_at`) VALUES
-(1, 'monday', 'The worst day of the week!', '2024-03-21 10:35:38.000000', '2024-04-04 11:27:54.663419', NULL),
-(2, 'friday', 'Party day! testing update...', '2024-04-04 00:16:57.242090', '2024-04-04 00:36:11.951780', '2024-04-04 00:36:11.951739'),
-(3, 'friday', 'Woohoo! Party time! Love it!', '2024-04-04 10:08:31.638749', '2024-04-04 10:29:44.457674', '2024-04-04 10:29:44.457549'),
-(4, 'monday', 'Tuesday', '2024-04-04 11:28:22.495385', NULL, NULL),
-(5, 'wednesday', ';iajreb vnh-v4ui; jvwrp7u9gfq3 vkjjveailu bWH V', '2024-04-04 11:30:21.125908', NULL, NULL);
+INSERT INTO `user_permissions` (`user_id`, `permission_id`) VALUES
+(2, 1),
+(2, 2),
+(2, 3);
 
 --
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `author_books`
+-- Constraints for table `user_group_permissions`
 --
-ALTER TABLE `author_books`
-  ADD CONSTRAINT `FK_AUTHORS_AUTHORBOOKS` FOREIGN KEY (`author_id`) REFERENCES `authors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_BOOKS_AUTHORBOOKS` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `user_group_permissions`
+  ADD CONSTRAINT `fk_permissions_user_group_permissions` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_user_groups_user_group_permissions` FOREIGN KEY (`user_group_id`) REFERENCES `user_groups` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `user_permissions`
+--
+ALTER TABLE `user_permissions`
+  ADD CONSTRAINT `fk_permissions_user_permissions` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_users_user_permissions` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 SET FOREIGN_KEY_CHECKS=1;
 COMMIT;
 
