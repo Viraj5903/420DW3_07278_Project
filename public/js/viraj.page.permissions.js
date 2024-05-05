@@ -3,7 +3,7 @@ document.getElementById("clear-button").onclick = clearForm;
 
 function clearForm() {
     $("#permission-form").get(0).reset();
-    $("#description").val("");
+    $("#description").html("");
     $("#create-button").prop("disabled", false);
     $("#clear-button").prop("disabled", true);
     $("#update-button").prop("disabled", true);
@@ -45,7 +45,9 @@ function fillFormFromResponseObject(entityObject) {
         $("#permission_name").val(entityObject.permissionName);
     }
     if ('description' in entityObject) {
-        $("#description").text(entityObject.description);
+        $("#description").val(entityObject.description);
+        // $("#description").html(entityObject.description);
+        //document.getElementById("description").innerText = entityObject.description;
     }
     if ('creationDate' in entityObject) {
         $("#date_created").val(entityObject.creationDate);
@@ -171,6 +173,19 @@ function updatePermission() {
      });
 }
 
+function updateClearButtonState() {
+    const dirtyElements = $("#permission-form")
+        .find('*')
+        .filter(":input")
+        .filter((index, element) => {
+            return $(element).val();
+        });
+    if (dirtyElements.length > 0) {
+        $("#clear-button").prop("disabled", false);
+    } else {
+        $("#clear-button").prop("disabled", true);
+    }
+}
 
 // The on() method attaches one or more event handlers for the selected elements and child elements.
-$("#permission-formm").on("change", ":input", updateClearButtonState);
+$("#permission-form").on("change", ":input", updateClearButtonState);

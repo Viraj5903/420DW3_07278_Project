@@ -25,7 +25,7 @@ $user = $_SESSION["LOGGED_IN_USER"];
 $access = false;
 
 foreach ($user->getPermissions() as $permission) {
-    if (($permission->toArray())["uniquePermission"] === "MANAGE_USER_GROUPS") {
+    if (($permission->toArray())["uniquePermission"] === "MANAGE_USERGROUPS") {
         $access = true;
     }
 }
@@ -104,7 +104,7 @@ try {
                 </div>
                 <div class="col-12">
                     <label class="form-label" for="description">Description:</label>
-                    <textarea class="form-control" name="description" id="description" maxlength="<?= UserGroupDTO::DESCRIPTION_MAX_LENGTH ?>"> </textarea>
+                    <textarea class="form-control" name="description" id="description" maxlength="<?= UserGroupDTO::DESCRIPTION_MAX_LENGTH ?>"></textarea>
                 </div>
                 <div class="col-12 flex-column">
                     <label class="form-label col-12 text-start">Permissions:</label>

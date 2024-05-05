@@ -3,7 +3,7 @@ document.getElementById("clear-button").onclick = clearForm;
 
 function clearForm() {
     $("#user_group-form").get(0).reset();
-    $("#description").val("");
+    $("#description").html("");
     $("#create-button").prop("disabled", false);
     $("#clear-button").prop("disabled", true);
     $("#update-button").prop("disabled", true);
@@ -43,7 +43,10 @@ function fillFormFromResponseObject(entityObject) {
         $("#group_name").val(entityObject.groupName);
     }
     if ('description' in entityObject) {
-        $("#description").text(entityObject.description);
+        // console.log("D = ", entityObject.description);
+        $("#description").val(entityObject.description);
+        // document.getElementById("description").innerText = entityObject.description;
+        //console.log($("#description"));
     }
     if ('creationDate' in entityObject) {
         $("#date_created").val(entityObject.creationDate);
@@ -111,6 +114,8 @@ function createUserGroup() {
              selector.appendChild(newOptionElement);
              selector.value = data.id;
          }
+         console.log("Data", data);
+         
          fillFormFromResponseObject(data);
      })
      .fail((jqXHR, textstatus, error) => {
@@ -186,6 +191,20 @@ function updateUserGroup() {
              displayResponseError(jqXHR.responseJSON);
          }
      });
+}
+
+function updateClearButtonState() {
+    const dirtyElements = $("#user_group-form")
+        .find('*')
+        .filter(":input")
+        .filter((index, element) => {
+            return $(element).val();
+        });
+    if (dirtyElements.length > 0) {
+        $("#clear-button").prop("disabled", false);
+    } else {
+        $("#clear-button").prop("disabled", true);
+    }
 }
 
 // The on() method attaches one or more event handlers for the selected elements and child elements.

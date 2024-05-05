@@ -32,6 +32,8 @@ class InternalRouter implements IService {
     private RouteCollection $routes;
     
     /**
+     * Construct
+     *
      * @param string $uri_base_directory
      * @throws ValidationException
      */
@@ -58,6 +60,8 @@ class InternalRouter implements IService {
     }
     
     /**
+     * Route function to route the url.
+     *
      * @return void
      * @throws RequestException
      */

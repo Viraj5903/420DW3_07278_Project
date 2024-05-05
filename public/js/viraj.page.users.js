@@ -192,5 +192,19 @@ function updateUser() {
      });
 }
 
+function updateClearButtonState() {
+    const dirtyElements = $("#user-form")
+        .find('*')
+        .filter(":input")
+        .filter((index, element) => {
+            return $(element).val();
+        });
+    if (dirtyElements.length > 0) {
+        $("#clear-button").prop("disabled", false);
+    } else {
+        $("#clear-button").prop("disabled", true);
+    }
+}
+
 // The on() method attaches one or more event handlers for the selected elements and child elements.
 $("#user-form").on("change", ":input", updateClearButtonState);
