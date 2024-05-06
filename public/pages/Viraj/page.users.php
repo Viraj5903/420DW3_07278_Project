@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 use Viraj\Project\DTOs\UserDTO;
 use Viraj\Project\Services\LoginService;
+use Viraj\Project\Services\PermissionCheckService;
 use Viraj\Project\Services\PermissionsService;
 use Viraj\Project\Services\UsersService;
 
@@ -17,29 +18,16 @@ if (!LoginService::isUserLoggedIn()) {
     LoginService::redirectToLogin();
 }
 
-//const USER_MANAGE_PERMISSION = "MANAGE_USERS";
-
-$user = $_SESSION["LOGGED_IN_USER"];
-//foreach ($user->getPermissions() as $permission) {
-//    var_export($permission->toArray()) . "<br>";
-//}
-
-$access = false;
-
-foreach ($user->getPermissions() as $permission) {
-    if (($permission->toArray())["uniquePermission"] === "MANAGE_USERS") {
-        $access = true;
-    }
-}
-
-if (!$access) {
-    include PRJ_PAGES_DIR . "Viraj" . DIRECTORY_SEPARATOR . "page.access_denied.php";
-    exit();
-}
-
 $user_service = new UsersService();
 $permission_service = new PermissionsService();
 try {
+    
+    if (!PermissionCheckService::checkPermission("MANAGE_USERS")) {
+        header("Location: " . WEB_ROOT_DIR . "pages/accessdenied");
+        // http_response_code(403);
+        exit();
+    }
+    
     $all_users = $user_service->getAllUsers();
     $all_permissions = $permission_service->getAllPermissions();
 } catch (Exception $exception) {
@@ -144,7 +132,7 @@ HTDOC;
                 <button id="create-button" type="button"
                         class="btn btn-primary col-12 col-md-2 my-1 my-md-0 text-uppercase">Create
                 </button>
-                <button id="clear-button" type="button" class="btn btn-info col-12 col-md-2 my-1 my-md-0 text-uppercase"
+                <button id="clear-button" type="button" class="btn btn-secondary col-12 col-md-2 my-1 my-md-0 text-uppercase"
                         disabled>Clear Form
                 </button>
                 <button id="update-button" type="button"

@@ -106,9 +106,7 @@ class LoginController extends AbstractController {
         $response = [
             "navigateTo" => WEB_ROOT_DIR . "pages/login"
         ];
-        if (!empty($_REQUEST["from"])) {
-            $response["navigateTo"] = $_REQUEST["from"];
-        }
+        
         header("Content-Type: application/json;charset=UTF-8");
         echo json_encode($response);
         exit();

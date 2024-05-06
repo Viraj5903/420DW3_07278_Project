@@ -7,7 +7,6 @@ declare(strict_types=1);
  * @author Viraj Patel
  * @since 2024-05-03
  */
-
 ?>
 
 <!DOCTYPE html>

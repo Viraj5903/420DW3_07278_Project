@@ -51,4 +51,14 @@ class PageNavigator {
         header("Content-Type: text/html;charset=UTF-8");
         include PRJ_PAGES_DIR . "Viraj" . DIRECTORY_SEPARATOR . "page.usergroups.php";
     }
+    
+    /**
+     * Function to navigate to access denied page.
+     *
+     * @return void
+     */
+    public static function accessDeniedPage() : void {
+        header("Content-Type: text/html;charset=UTF-8");
+        include PRJ_PAGES_DIR . "Viraj" . DIRECTORY_SEPARATOR . "page.access_denied.php";
+    }
 }

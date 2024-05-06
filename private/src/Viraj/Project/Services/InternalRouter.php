@@ -57,6 +57,7 @@ class InternalRouter implements IService {
         $this->routes->addRoute(new CallableRoute("/pages/users", [PageNavigator::class, "usersManagementPage"]));
         $this->routes->addRoute(new CallableRoute("/pages/usergroups", [PageNavigator::class, "userGroupsManagementPage"]));
         $this->routes->addRoute(new CallableRoute("/pages/permissions", [PageNavigator::class, "permissionsManagementPage"]));
+        $this->routes->addRoute(new CallableRoute("/pages/accessdenied", [PageNavigator::class, "accessDeniedPage"]));
     }
     
     /**
