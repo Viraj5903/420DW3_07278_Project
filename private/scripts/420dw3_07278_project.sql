@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 05, 2024 at 01:09 PM
+-- Generation Time: May 05, 2024 at 10:40 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -40,16 +40,17 @@ CREATE TABLE IF NOT EXISTS `permissions` (
   `last_modified_at` datetime(6) DEFAULT NULL ON UPDATE current_timestamp(6),
   PRIMARY KEY (`id`),
   UNIQUE KEY `permission_identifier` (`unique_permission`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `permissions`
 --
 
 INSERT INTO `permissions` (`id`, `unique_permission`, `permission_name`, `description`, `created_at`, `last_modified_at`) VALUES
-(1, 'MANAGE_USERS', 'Manage Users', NULL, '2024-05-03 18:48:42.126948', '2024-05-04 00:58:19.726327'),
-(2, 'MANAGE_PERMISSIONS', 'MANAGE PERMISSIONS', NULL, '2024-05-04 01:03:56.468687', NULL),
-(3, 'MANAGE_USER_GROUPS', 'MANAGE USER GROUPS', NULL, '2024-05-04 02:03:17.925492', NULL);
+(1, 'LOGIN_ALLOWED', 'LOGIN ALLOWED', 'allows users to log-in', '2024-05-05 13:59:16.290071', NULL),
+(2, 'MANAGE_USERS', 'MANAGE USERS', 'allows access to management of user entities, including CRUD', '2024-05-05 13:59:45.394262', NULL),
+(3, 'MANAGE_PERMISSIONS', 'MANAGE PERMISSIONS', 'allows access to management of user group entities, including CRUD operations', '2024-05-05 14:00:14.349563', '2024-05-05 17:46:06.231938'),
+(4, 'MANAGE_USERGROUPS', 'MANAGE USERGROUPS', 'allows access to management of user entities, including CRUD operations', '2024-05-05 14:00:35.294158', '2024-05-05 17:46:26.893715');
 
 -- --------------------------------------------------------
 
@@ -68,14 +69,16 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `username`, `password_hash`, `email`, `created_at`, `last_modified_at`) VALUES
-(2, 'Test', '$2y$10$1rR69VuVgz03c4K2o1exdeyPLRBj0qHoSNwVHKIgZCEPk3uIvYau2', 'test@gmail.com', '2024-05-03 20:41:02.773828', '2024-05-04 17:23:58.368233');
+(1, 'Viraj', '$2y$10$.0VpX3aINp9JNp3rxWvI.e4XeBxv2KN.xpeFcgSn5XtAp3XvYHU8C', 'viraj@gmail.com', '2024-05-05 13:55:37.661727', '2024-05-05 14:47:06.493024'),
+(2, 'Marc', '$2y$10$lnvidl.Xvt2JOQcQOW7JL.fEh/otBJHdmCQHLQGAEsISDc.1hF/4m', 'marc@gmail.com', '2024-05-05 14:45:18.866844', '2024-05-05 20:58:11.614889'),
+(3, 'James', '$2y$10$G7r230OzoqW551Q30ZTnV.YJE0zjM4TrCU17I9KG4shazbSvPxz42', 'james@gmail.com', '2024-05-05 14:45:54.655185', NULL);
 
 -- --------------------------------------------------------
 
@@ -92,18 +95,16 @@ CREATE TABLE IF NOT EXISTS `user_groups` (
   `last_modified_at` datetime(6) DEFAULT NULL ON UPDATE current_timestamp(6),
   PRIMARY KEY (`id`),
   UNIQUE KEY `group_name` (`group_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user_groups`
 --
 
 INSERT INTO `user_groups` (`id`, `group_name`, `description`, `created_at`, `last_modified_at`) VALUES
-(2, 'Test', NULL, '2024-05-04 01:35:10.215643', NULL),
-(3, 'Test2', ' ', '2024-05-04 01:42:25.706990', NULL),
-(4, 'Test3', ' ', '2024-05-04 01:43:28.267219', NULL),
-(5, 'Test4', ' ', '2024-05-04 01:44:50.869417', NULL),
-(6, 'Exam1', ' Test', '2024-05-04 01:53:15.593807', '2024-05-04 02:01:24.413431');
+(1, 'Admin', 'All permission', '2024-05-05 14:07:07.663243', '2024-05-05 14:43:25.841251'),
+(2, 'Permission Group', 'Permission Group', '2024-05-05 14:43:16.206516', NULL),
+(3, 'User Group', 'User Group', '2024-05-05 22:33:46.625163', '2024-05-05 22:35:04.433956');
 
 -- --------------------------------------------------------
 
@@ -124,7 +125,14 @@ CREATE TABLE IF NOT EXISTS `user_group_permissions` (
 --
 
 INSERT INTO `user_group_permissions` (`user_group_id`, `permission_id`) VALUES
-(2, 2);
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
+(2, 1),
+(2, 3),
+(3, 1),
+(3, 2);
 
 -- --------------------------------------------------------
 
@@ -145,9 +153,13 @@ CREATE TABLE IF NOT EXISTS `user_permissions` (
 --
 
 INSERT INTO `user_permissions` (`user_id`, `permission_id`) VALUES
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
 (2, 1),
-(2, 2),
-(2, 3);
+(2, 3),
+(3, 4);
 
 --
 -- Constraints for dumped tables
@@ -157,7 +169,7 @@ INSERT INTO `user_permissions` (`user_id`, `permission_id`) VALUES
 -- Constraints for table `user_group_permissions`
 --
 ALTER TABLE `user_group_permissions`
-  ADD CONSTRAINT `fk_permissions_user_group_permissions` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_permissions_user_group_permissions` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_user_groups_user_group_permissions` FOREIGN KEY (`user_group_id`) REFERENCES `user_groups` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --

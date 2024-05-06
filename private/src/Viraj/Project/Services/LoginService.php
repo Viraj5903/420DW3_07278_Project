@@ -99,7 +99,21 @@ class LoginService {
             throw new Exception("Username is [$username] not found.", 404);
         }
         
-        // Set the logged in user session variable.
-        $_SESSION["LOGGED_IN_USER"] = $user;
+        // Iterate through the user's permissions.
+        foreach ($user->getPermissions() as $permission) {
+            // Check if the permission unique name matches the provided permission unique name.
+            if (($permission->toArray())["uniquePermission"] === "LOGIN_ALLOWED") {
+                // If yes, return.
+                
+                // Set the logged in user session variable.
+                $_SESSION["LOGGED_IN_USER"] = $user;
+                return;
+            }
+        }
+        
+        header("Location: " . WEB_ROOT_DIR . "pages/accessdenied");
+        http_response_code(403);
+        exit();
+        
     }
 }

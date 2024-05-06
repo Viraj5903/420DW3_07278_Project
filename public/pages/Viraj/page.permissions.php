@@ -20,11 +20,7 @@ if (!LoginService::isUserLoggedIn()) {
 $permission_service = new PermissionsService();
 try {
     
-    if (!PermissionCheckService::checkPermission("MANAGE_PERMISSIONS")) {
-        header("Location: " . WEB_ROOT_DIR . "pages/accessdenied");
-        // http_response_code(403);
-        exit();
-    }
+    PermissionCheckService::checkPermission("MANAGE_PERMISSIONS");
     
     $all_permissions = $permission_service->getAllPermissions();
 } catch (Exception $exception) {

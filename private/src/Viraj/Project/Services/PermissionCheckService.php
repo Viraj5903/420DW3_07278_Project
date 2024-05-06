@@ -14,32 +14,45 @@ use Teacher\GivenCode\Exceptions\RuntimeException;
 use Viraj\Project\DTOs\UserDTO;
 
 /**
- *
+ * Service class for checking user permissions.
  */
 class PermissionCheckService {
     
+    /**
+     * Constructor.
+     */
     public function __construct() {}
     
     /**
-     * @param string $permissionUniqueName
-     * @return bool
-     * @throws RuntimeException If there is an issue with loading the permission records.
+     * Checks if a user has a specific permission.
+     *
+     * @param string $permissionUniqueName The unique name of the permission to check.
+     * @return void
+     * @throws RuntimeException If there is an issue with loading the permission records or if the user is not logged in.
      */
-    public static function checkPermission(string $permissionUniqueName) : bool {
+    public static function checkPermission(string $permissionUniqueName) : void {
         
+        // Get the logged-in user from the session.
         $user = $_SESSION["LOGGED_IN_USER"];
         
+        // Check if the user is an instance of UserDTO.
         if (!($user instanceof UserDTO) && !is_null($user)) {
-            // http_response_code(401);
-            throw new RuntimeException('user is not instance of UserDTO');
+            // If not, throw a runtime exception.
+            throw new RuntimeException('User is not an instance of UserDTO');
         }
         
+        // Iterate through the user's permissions.
         foreach ($user->getPermissions() as $permission) {
+            // Check if the permission unique name matches the provided permission unique name.
             if (($permission->toArray())["uniquePermission"] === $permissionUniqueName) {
-                return true;
+                // If yes, return.
+                return;
             }
         }
         
-        return false;
+        // If the user does not have the required permission, redirect to the access denied page.
+        //header("Location: " . WEB_ROOT_DIR . "pages/accessdenied");
+        header("Location: accessdenied");
+        exit();
     }
 }

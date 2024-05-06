@@ -22,11 +22,7 @@ $user_service = new UsersService();
 $permission_service = new PermissionsService();
 try {
     
-    if (!PermissionCheckService::checkPermission("MANAGE_USERS")) {
-        header("Location: " . WEB_ROOT_DIR . "pages/accessdenied");
-        // http_response_code(403);
-        exit();
-    }
+    PermissionCheckService::checkPermission("MANAGE_USERS");
     
     $all_users = $user_service->getAllUsers();
     $all_permissions = $permission_service->getAllPermissions();

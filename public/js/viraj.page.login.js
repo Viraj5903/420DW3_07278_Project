@@ -13,7 +13,16 @@ $("#loginButton").on("click", (event) => {
         }
     }).fail((jqXHR, textStatus, errorThrown) => {
         console.log(jqXHR);
-        // console.log(textStatus);
+        
+        
+        
+        console.log(jqXHR.status);
+        
+        if (jqXHR.status === 403) {
+            // if (jqXHR.status >= 400) {
+            window.location = "accessdenied";
+        }
+        
         if ('responseJSON' in jqXHR && typeof jqXHR.responseJSON === "object") {
             displayResponseError(jqXHR.responseJSON);
         }
